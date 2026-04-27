@@ -2,3127 +2,608 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>磷的平衡 · 洗腎病友衛教學習平台</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>磷警示 — AI血磷飲食辨識</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root {
-    --primary: #2C5F5D;        /* 深藍綠 */
-    --primary-light: #4A8A87;
-    --accent: #C9A961;         /* 溫暖金 */
-    --accent-dark: #A8883F;
-    --bg: #FAF7F2;             /* 米白底 */
-    --bg-card: #FFFFFF;
-    --bg-warm: #F4ECE0;        /* 暖米色 */
-    --text: #2B2B2B;
-    --text-soft: #6B6B6B;
-    --border: #E8E0D0;
-
-    --safe: #5B9A7E;
-    --safe-bg: #E8F3ED;
-    --warn: #E0B04D;
-    --warn-bg: #FBF3DF;
-    --danger: #C85A4A;
-    --danger-bg: #FBEAE5;
-
-    --shadow-sm: 0 2px 8px rgba(44, 95, 93, 0.06);
-    --shadow-md: 0 8px 24px rgba(44, 95, 93, 0.10);
-    --shadow-lg: 0 20px 50px rgba(44, 95, 93, 0.15);
-
-    --serif: "Noto Serif TC", "Songti TC", serif;
-    --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-    font-family: var(--sans);
+  :root {
+    --bg: #0a0e14;
+    --card: #161e28;
+    --border: #1e2d3d;
+    --accent: #00d4aa;
+    --warn: #ff6b35;
+    --danger: #ff2d55;
+    --safe: #34c759;
+    --gold: #ffd60a;
+    --text: #e8f0f8;
+    --muted: #6b7f94;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
     background: var(--bg);
     color: var(--text);
-    line-height: 1.75;
-    font-size: 18px;
+    font-family: 'Noto Sans TC', -apple-system, sans-serif;
     min-height: 100vh;
+    padding: 0 0 60px;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
     background-image:
-        radial-gradient(circle at 10% 10%, rgba(201, 169, 97, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(44, 95, 93, 0.04) 0%, transparent 40%);
-}
+      linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+  .container { max-width: 680px; margin: 0 auto; padding: 20px 16px; position: relative; z-index: 1; }
 
-/* =========== 登入/識別畫面 =========== */
-.login-overlay {
-    position: fixed; inset: 0; z-index: 500;
-    background: linear-gradient(135deg, #2C5F5D 0%, #1a3d3c 100%);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-}
-.login-card {
-    background: white; padding: 3rem 2.5rem; border-radius: 24px;
-    max-width: 480px; width: 100%;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
-    text-align: center;
-}
-.login-card h1 {
-    font-family: var(--serif); font-size: 2rem; color: var(--primary);
-    margin-bottom: 0.5rem; font-weight: 700;
-}
-.login-card .subtitle {
-    color: var(--text-soft); margin-bottom: 2rem; font-size: 1rem;
-}
-.login-card label {
-    display: block; text-align: left; margin-bottom: 0.5rem;
-    font-weight: 500; color: var(--primary);
-}
-.login-card input, .login-card select {
-    width: 100%; padding: 14px 18px; border: 2px solid var(--border);
-    border-radius: 12px; font-size: 1.1rem; margin-bottom: 1.2rem;
-    font-family: var(--sans); transition: border-color 0.2s;
-}
-.login-card input:focus, .login-card select:focus {
-    outline: none; border-color: var(--primary);
-}
-.login-btn {
-    width: 100%; padding: 16px; border: none; border-radius: 12px;
-    background: var(--primary); color: white; font-size: 1.2rem;
-    font-weight: 700; cursor: pointer; font-family: var(--sans);
-    transition: transform 0.2s, background 0.2s;
-}
-.login-btn:hover { background: var(--primary-light); transform: translateY(-2px); }
-.consent-box {
-    background: var(--bg-warm); padding: 1rem; border-radius: 10px;
-    font-size: 0.88rem; color: var(--text-soft); text-align: left;
-    margin-bottom: 1.2rem; line-height: 1.6;
-}
-.consent-box label { font-weight: 400; color: var(--text); margin-top: 0.5rem; cursor: pointer;}
-
-/* =========== 頂部導覽 =========== */
-header {
-    background: white;
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: var(--shadow-sm);
-}
-.header-inner {
-    max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 1rem;
-}
-.brand {
-    display: flex; align-items: center; gap: 12px;
-}
-.brand-icon {
-    width: 46px; height: 46px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-family: var(--serif); font-weight: 900; font-size: 1.4rem;
-    box-shadow: var(--shadow-sm);
-}
-.brand-text h1 {
-    font-family: var(--serif); font-size: 1.35rem; color: var(--primary);
-    font-weight: 700; line-height: 1.2;
-}
-.brand-text p { font-size: 0.82rem; color: var(--text-soft); }
-
-.user-badge {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--bg-warm); padding: 8px 16px; border-radius: 30px;
-    font-size: 0.9rem;
-}
-.user-badge strong { color: var(--primary); }
-
-.nav-tabs {
-    max-width: 1200px; margin: 0 auto; padding: 0 1rem;
-    display: flex; gap: 4px; overflow-x: auto; flex-wrap: nowrap;
-    scrollbar-width: none;
-}
-.nav-tabs::-webkit-scrollbar { display: none; }
-.nav-btn {
-    padding: 14px 22px; border: none; background: transparent;
-    font-size: 1rem; color: var(--text-soft); cursor: pointer;
-    border-bottom: 3px solid transparent; font-weight: 500;
-    font-family: var(--sans); white-space: nowrap;
-    transition: all 0.25s;
-}
-.nav-btn:hover { color: var(--primary); }
-.nav-btn.active {
-    color: var(--primary); border-bottom-color: var(--accent);
+  /* Setup panel */
+  .setup {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .setup h2 { font-size: 16px; margin-bottom: 10px; font-weight: 700; }
+  .setup p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 12px; }
+  .setup a { color: var(--accent); text-decoration: none; }
+  .setup input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+  .setup input:focus { outline: none; border-color: var(--accent); }
+  .setup button {
+    width: 100%;
+    background: var(--accent);
+    color: #0a0e14;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 14px;
     font-weight: 700;
-}
-.nav-btn .icon { margin-right: 6px; font-size: 1.1rem; }
-
-/* =========== 內容區段 =========== */
-main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
-.view-section { display: none; animation: fadeIn 0.4s ease-out; }
-.view-section.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.section-title {
-    font-family: var(--serif); font-size: 2rem; color: var(--primary);
-    margin-bottom: 0.3rem; font-weight: 700;
-}
-.section-subtitle { color: var(--text-soft); margin-bottom: 2rem; font-size: 1rem; }
-
-/* =========== 首頁 Dashboard =========== */
-.hero {
-    background: linear-gradient(135deg, var(--primary) 0%, #1a3d3c 100%);
-    color: white; padding: 3rem 2.5rem; border-radius: 24px;
-    margin-bottom: 2rem; position: relative; overflow: hidden;
-}
-.hero::before {
-    content: ''; position: absolute; right: -50px; top: -50px;
-    width: 300px; height: 300px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(201,169,97,0.2) 0%, transparent 70%);
-}
-.hero h2 {
-    font-family: var(--serif); font-size: 2.3rem; font-weight: 700;
-    margin-bottom: 0.8rem; position: relative;
-}
-.hero p { font-size: 1.1rem; opacity: 0.92; max-width: 600px; position: relative; }
-.hero-stats { display: flex; gap: 2rem; margin-top: 2rem; flex-wrap: wrap; position: relative; }
-.hero-stat {
-    background: rgba(255,255,255,0.12); padding: 1rem 1.5rem;
-    border-radius: 14px; backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.15);
-}
-.hero-stat-value { font-size: 1.8rem; font-weight: 700; font-family: var(--serif); color: var(--accent); }
-.hero-stat-label { font-size: 0.85rem; opacity: 0.85; }
-
-.module-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 1.2rem; margin-bottom: 2rem;
-}
-.module-card {
-    background: white; padding: 1.8rem; border-radius: 18px;
-    box-shadow: var(--shadow-sm); cursor: pointer;
-    transition: all 0.3s; border: 1px solid var(--border);
-    position: relative; overflow: hidden;
-}
-.module-card:hover {
-    transform: translateY(-4px); box-shadow: var(--shadow-md);
-    border-color: var(--accent);
-}
-.module-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
-}
-.module-card:hover::before { transform: scaleX(1); }
-.module-icon {
-    width: 56px; height: 56px; border-radius: 14px;
-    background: var(--bg-warm); display: flex;
-    align-items: center; justify-content: center;
-    font-size: 1.8rem; margin-bottom: 1rem;
-}
-.module-title {
-    font-family: var(--serif); font-size: 1.25rem;
-    color: var(--primary); font-weight: 700; margin-bottom: 0.4rem;
-}
-.module-desc { color: var(--text-soft); font-size: 0.92rem; line-height: 1.6; }
-
-/* =========== 文章 / 衛教 =========== */
-.article-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-}
-.article-card {
-    background: white; border-radius: 18px; overflow: hidden;
-    box-shadow: var(--shadow-sm); cursor: pointer;
-    transition: all 0.3s; border: 1px solid var(--border);
-}
-.article-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-.article-header {
-    padding: 2rem 1.8rem 1rem; background: var(--bg-warm);
-    border-bottom: 1px solid var(--border);
-}
-.article-number {
-    font-family: var(--serif); font-size: 0.85rem; color: var(--accent-dark);
-    letter-spacing: 2px; font-weight: 700; margin-bottom: 0.5rem;
-}
-.article-title {
-    font-family: var(--serif); font-size: 1.4rem;
-    color: var(--primary); font-weight: 700; line-height: 1.4;
-}
-.article-body { padding: 1.5rem 1.8rem; }
-.article-excerpt { color: var(--text-soft); font-size: 0.95rem; }
-.read-more {
-    display: inline-block; margin-top: 1rem; color: var(--primary);
-    font-weight: 700; font-size: 0.9rem;
-}
-
-/* 文章閱讀器 */
-.article-reader {
-    background: white; border-radius: 20px; padding: 3rem;
-    max-width: 780px; margin: 0 auto; box-shadow: var(--shadow-sm);
-    line-height: 1.9;
-}
-.article-reader h2 {
-    font-family: var(--serif); font-size: 2.2rem; color: var(--primary);
-    margin-bottom: 0.5rem; font-weight: 700;
-}
-.article-reader .meta { color: var(--text-soft); margin-bottom: 2rem; font-size: 0.9rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--border); }
-.article-reader h3 { font-family: var(--serif); color: var(--primary); margin: 2rem 0 1rem; font-size: 1.4rem; }
-.article-reader p { margin-bottom: 1.2rem; color: var(--text); }
-.article-reader ul, .article-reader ol { margin: 1rem 0 1.5rem 1.5rem; }
-.article-reader li { margin-bottom: 0.6rem; }
-.article-reader .callout {
-    background: var(--bg-warm); border-left: 4px solid var(--accent);
-    padding: 1.2rem 1.5rem; border-radius: 10px; margin: 1.5rem 0;
-}
-.article-reader .callout strong { color: var(--primary); }
-.back-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; background: var(--bg-warm); border: none;
-    border-radius: 30px; cursor: pointer; font-size: 0.95rem;
-    color: var(--primary); margin-bottom: 1.5rem; font-family: var(--sans);
-}
-
-/* =========== 食物查詢 =========== */
-.control-panel {
-    background: white; padding: 1.5rem; border-radius: 18px;
-    box-shadow: var(--shadow-sm); margin-bottom: 1.5rem;
-    border: 1px solid var(--border);
-}
-.search-box {
-    width: 100%; padding: 14px 22px; border: 2px solid var(--border);
-    border-radius: 50px; font-size: 1.05rem; font-family: var(--sans);
-    margin-bottom: 1rem; transition: border-color 0.2s;
-}
-.search-box:focus { outline: none; border-color: var(--primary); }
-.filters { display: flex; gap: 8px; flex-wrap: wrap; }
-.filter-btn {
-    padding: 9px 20px; border: 2px solid var(--border); border-radius: 30px;
-    cursor: pointer; background: white; color: var(--text-soft);
-    font-size: 0.95rem; font-family: var(--sans); font-weight: 500;
-    transition: all 0.2s;
-}
-.filter-btn.active { color: white; border-color: transparent; font-weight: 700; }
-.filter-btn[data-type="all"].active { background: var(--primary); }
-.filter-btn[data-type="low"].active { background: var(--safe); }
-.filter-btn[data-type="mid"].active { background: var(--warn); color: #5C4A1A; }
-.filter-btn[data-type="high"].active { background: var(--danger); }
-
-.legend {
-    background: var(--bg-warm); padding: 1rem 1.5rem; border-radius: 14px;
-    margin-bottom: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap;
-    align-items: center; font-size: 0.88rem;
-}
-.legend-item { display: flex; align-items: center; gap: 6px; }
-.legend-dot { width: 14px; height: 14px; border-radius: 50%; }
-.legend-dot.low { background: var(--safe); }
-.legend-dot.mid { background: var(--warn); }
-.legend-dot.high { background: var(--danger); }
-
-.category-group { margin-bottom: 2rem; }
-.cat-title {
-    font-family: var(--serif); font-size: 1.35rem; color: var(--primary);
-    margin-bottom: 1rem; font-weight: 700;
-    display: flex; align-items: center; gap: 10px;
-}
-.cat-title::before {
-    content: ''; width: 6px; height: 24px; background: var(--accent);
-    border-radius: 3px;
-}
-.food-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 12px;
-}
-.food-card {
-    background: white; padding: 16px 14px; border-radius: 14px;
-    box-shadow: var(--shadow-sm); cursor: pointer;
-    transition: all 0.2s; text-align: center;
-    border: 2px solid var(--border); border-top: 5px solid var(--border);
-    position: relative;
-}
-.food-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-.food-card.selected { background: var(--safe-bg); border-color: var(--safe); }
-.food-card.low { border-top-color: var(--safe); }
-.food-card.mid { border-top-color: var(--warn); }
-.food-card.high { border-top-color: var(--danger); }
-.food-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
-.food-phos { font-size: 0.85rem; color: var(--text-soft); }
-.info-btn {
-    position: absolute; top: 6px; right: 6px; width: 22px; height: 22px;
-    border-radius: 50%; background: var(--bg-warm); color: var(--primary);
-    font-size: 12px; font-weight: 700; display: flex;
-    align-items: center; justify-content: center; border: none;
-    cursor: pointer; font-family: var(--serif);
-}
-
-/* =========== 測驗 =========== */
-.exam-container {
-    background: white; border-radius: 22px; padding: 3rem 2.5rem;
-    max-width: 680px; margin: 0 auto; box-shadow: var(--shadow-md);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .setup .small {
+    font-size: 11px;
+    color: var(--muted);
     text-align: center;
-}
-.exam-progress {
-    display: flex; justify-content: space-between; align-items: center;
-    color: var(--text-soft); margin-bottom: 1.5rem; font-size: 0.95rem;
-}
-.progress-bar {
-    flex: 1; height: 8px; background: var(--border);
-    border-radius: 4px; overflow: hidden; margin: 0 1rem;
-}
-.progress-fill {
-    height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
-    border-radius: 4px; transition: width 0.4s;
-}
-.quiz-food-name {
-    font-family: var(--serif); font-size: 2.8rem; font-weight: 700;
-    color: var(--primary); margin: 2rem 0; min-height: 80px;
+    margin-top: 10px;
+    line-height: 1.7;
+  }
+
+  /* Header */
+  .header { text-align: center; padding: 20px 0 18px; animation: pop .5s ease both; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(0,212,170,.1); border: 1px solid rgba(0,212,170,.3);
+    border-radius: 100px; padding: 5px 15px; font-size: 11px;
+    color: var(--accent); letter-spacing: 2px; margin-bottom: 12px;
+  }
+  .badge-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: glow 2s infinite; }
+  h1 { font-size: clamp(26px, 6vw, 36px); font-weight: 900; letter-spacing: -1px; line-height: 1.15; }
+  h1 span { color: var(--accent); }
+  .subtitle { margin-top: 8px; color: var(--muted); font-size: 13px; line-height: 1.8; font-weight: 300; }
+
+  /* Upload */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 18px;
+    padding: 48px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--card);
+    transition: all .25s;
+    animation: pop .5s .1s ease both;
+  }
+  .upload-zone:active, .upload-zone.drag {
+    border-color: var(--accent);
+    background: rgba(0,212,170,.04);
+  }
+  .upload-ico { font-size: 42px; margin-bottom: 10px; display: block; }
+  .upload-t { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .upload-h { font-size: 12px; color: var(--muted); }
+
+  /* Preview */
+  .preview { border-radius: 16px; overflow: hidden; margin-bottom: 10px; position: relative; animation: pop .4s ease both; }
+  .preview img { width: 100%; max-height: 280px; object-fit: cover; display: block; }
+  .preview-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(10,14,20,.93));
+    padding: 20px 16px 14px;
+    display: flex; justify-content: flex-end;
+  }
+  .btn-small {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    color: var(--text);
+    border-radius: 8px; padding: 7px 14px; font-size: 12px;
+    cursor: pointer; font-family: inherit;
+  }
+
+  /* Analyze button */
+  .btn-main {
+    width: 100%; background: var(--accent); color: #0a0e14;
+    border: none; border-radius: 13px; padding: 16px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    line-height: 1.3;
-}
-.quiz-category-hint {
-    display: inline-block; padding: 4px 14px; border-radius: 20px;
-    background: var(--bg-warm); color: var(--accent-dark);
-    font-size: 0.85rem; margin-bottom: 1rem;
-}
-.quiz-options { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
-.quiz-btn {
-    width: 115px; height: 115px; border-radius: 50%; border: none;
-    font-size: 1.8rem; cursor: pointer; color: white; font-weight: 700;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-family: var(--sans); transition: all 0.25s;
-}
-.quiz-btn span { font-size: 0.95rem; margin-top: 4px; font-weight: 500; }
-.quiz-btn.low { background: var(--safe); }
-.quiz-btn.mid { background: var(--warn); color: #5C4A1A; }
-.quiz-btn.high { background: var(--danger); }
-.quiz-btn:hover:not(:disabled) { transform: translateY(-6px) scale(1.03); }
-.quiz-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+    gap: 8px; font-family: inherit; transition: all .2s;
+    animation: pop .4s ease both;
+  }
+  .btn-main:active { transform: scale(.98); }
+  .btn-main:disabled { opacity: .5; cursor: not-allowed; }
 
-.feedback-area {
-    margin-top: 2rem; padding: 1.5rem; border-radius: 14px;
-    display: none; text-align: left; animation: popIn 0.4s;
-}
-.feedback-area.correct { background: var(--safe-bg); border-left: 5px solid var(--safe); }
-.feedback-area.wrong { background: var(--danger-bg); border-left: 5px solid var(--danger); }
-.feedback-area strong { font-size: 1.2rem; display: block; margin-bottom: 0.5rem; }
-.feedback-area.correct strong { color: var(--safe); }
-.feedback-area.wrong strong { color: var(--danger); }
+  /* Loading */
+  .loading {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 32px 24px; text-align: center;
+    animation: pop .4s ease both;
+  }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; margin: 0 auto 14px;
+    animation: spin 1s linear infinite;
+  }
+  .loading-t { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .step { font-size: 12px; margin-bottom: 6px; transition: color .4s; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--border); }
+  .step.cur { color: var(--accent); }
+  .step.done { color: var(--safe); }
 
-.primary-btn {
-    padding: 14px 38px; border-radius: 50px;
-    background: var(--primary); color: white; border: none;
-    font-size: 1.1rem; font-weight: 700; cursor: pointer;
-    font-family: var(--sans); transition: all 0.2s; display: none;
-    margin-top: 1.5rem;
-}
-.primary-btn:hover { background: var(--primary-light); transform: translateY(-2px); }
-.accent-btn {
-    padding: 14px 38px; border-radius: 50px;
-    background: var(--accent); color: white; border: none;
-    font-size: 1.1rem; font-weight: 700; cursor: pointer;
-    font-family: var(--sans); transition: all 0.2s;
-}
-.accent-btn:hover { background: var(--accent-dark); transform: translateY(-2px); }
+  /* Error */
+  .error {
+    background: rgba(255,45,85,.06);
+    border: 1px solid rgba(255,45,85,.2);
+    border-radius: 16px; padding: 24px; text-align: center;
+    animation: pop .4s ease both;
+  }
+  .error-ico { font-size: 34px; margin-bottom: 10px; }
+  .error-msg { color: #ff9999; font-size: 14px; line-height: 1.8; margin-bottom: 14px; }
+  .error-det { font-size: 11px; color: var(--muted); margin-top: 6px; word-break: break-all; }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 10px; padding: 10px 22px;
+    font-size: 13px; cursor: pointer; font-family: inherit;
+  }
+  .btn-ghost:active { transform: scale(.98); }
 
-.score-display {
-    font-family: var(--serif); font-size: 5rem; font-weight: 900;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin: 1.5rem 0;
-}
+  /* Result */
+  .result { display: flex; flex-direction: column; gap: 10px; animation: pop .5s ease both; }
+  .risk-banner {
+    border-radius: 16px; padding: 20px 22px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .risk-banner.high { background: rgba(255,45,85,.08); border: 1px solid rgba(255,45,85,.3); }
+  .risk-banner.medium { background: rgba(255,214,10,.07); border: 1px solid rgba(255,214,10,.3); }
+  .risk-banner.low { background: rgba(52,199,89,.08); border: 1px solid rgba(52,199,89,.3); }
+  .risk-ico { font-size: 38px; flex-shrink: 0; }
+  .risk-label { font-size: 11px; letter-spacing: 2px; margin-bottom: 3px; }
+  .risk-banner.high .risk-label { color: var(--danger); }
+  .risk-banner.medium .risk-label { color: var(--gold); }
+  .risk-banner.low .risk-label { color: var(--safe); }
+  .risk-title { font-size: 20px; font-weight: 800; }
+  .risk-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
-/* =========== 情境題 =========== */
-.scenario-card {
-    background: white; border-radius: 20px; padding: 2.5rem;
-    max-width: 780px; margin: 0 auto; box-shadow: var(--shadow-md);
-}
-.scenario-scene {
-    font-family: var(--serif); font-size: 1.15rem; color: var(--text);
-    background: var(--bg-warm); padding: 1.5rem; border-radius: 14px;
-    border-left: 4px solid var(--accent); margin-bottom: 1.5rem;
-    line-height: 1.8;
-}
-.plate-visual {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px; margin: 1.5rem 0;
-}
-.plate-item {
-    background: var(--bg-warm); border-radius: 14px; padding: 1.2rem 0.8rem;
-    text-align: center; cursor: pointer; border: 3px solid transparent;
-    transition: all 0.2s; position: relative;
-}
-.plate-item:hover { transform: translateY(-3px); }
-.plate-item.selected {
-    border-color: var(--primary); background: var(--safe-bg);
-}
-.plate-item.selected::after {
-    content: '✓'; position: absolute; top: 6px; right: 10px;
-    color: var(--primary); font-weight: 900; font-size: 1.3rem;
-}
-.plate-emoji { font-size: 2.5rem; display: block; margin-bottom: 6px; }
-.plate-name { font-weight: 700; font-size: 0.95rem; }
-.plate-phos { font-size: 0.8rem; color: var(--text-soft); }
+  .meter {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 13px; padding: 15px 18px;
+  }
+  .meter-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; }
+  .meter-bar { height: 9px; background: var(--border); border-radius: 100px; overflow: hidden; }
+  .meter-fill { height: 100%; border-radius: 100px; transition: width 1.2s cubic-bezier(.34,1.56,.64,1); }
+  .meter-fill.high { background: linear-gradient(90deg, var(--warn), var(--danger)); }
+  .meter-fill.medium { background: linear-gradient(90deg, var(--gold), var(--warn)); }
+  .meter-fill.low { background: linear-gradient(90deg, var(--accent), var(--safe)); }
+  .meter-marks { display: flex; justify-content: space-between; margin-top: 5px; font-size: 10px; color: var(--muted); }
 
-/* =========== 飲食日記 =========== */
-.diary-layout {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
-}
-@media (max-width: 860px) { .diary-layout { grid-template-columns: 1fr; } }
-.diary-card {
-    background: white; border-radius: 18px; padding: 2rem;
-    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
-}
-.diary-card h3 {
-    font-family: var(--serif); color: var(--primary);
-    margin-bottom: 1rem; font-size: 1.3rem;
-}
-.diary-form label {
-    display: block; margin-bottom: 0.4rem; font-weight: 500;
-    color: var(--primary); font-size: 0.92rem;
-}
-.diary-form input, .diary-form select, .diary-form textarea {
-    width: 100%; padding: 12px 16px; border: 2px solid var(--border);
-    border-radius: 10px; font-size: 1rem; margin-bottom: 1rem;
-    font-family: var(--sans); transition: border-color 0.2s;
-}
-.diary-form input:focus, .diary-form select:focus, .diary-form textarea:focus {
-    outline: none; border-color: var(--primary);
-}
-.diary-form textarea { resize: vertical; min-height: 80px; }
-.diary-entry {
-    background: var(--bg-warm); padding: 1rem 1.2rem; border-radius: 12px;
-    margin-bottom: 0.8rem; border-left: 4px solid var(--accent);
-}
-.diary-entry-header { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
-.diary-entry-date { font-size: 0.82rem; color: var(--text-soft); }
-.diary-entry-food { font-weight: 700; color: var(--primary); font-size: 1.05rem; }
-.diary-entry-detail { font-size: 0.88rem; color: var(--text-soft); }
-.diary-entry-binder { display: inline-block; font-size: 0.78rem; padding: 2px 10px; border-radius: 20px; background: var(--safe-bg); color: var(--safe); margin-top: 4px; font-weight: 700; }
-.diary-entry-nobinder { background: var(--danger-bg); color: var(--danger); }
+  .section-lbl { font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-bottom: 7px; }
+  .food { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: 12px 15px; display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .fdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .fdot.high { background: var(--danger); box-shadow: 0 0 5px var(--danger); }
+  .fdot.medium { background: var(--gold); box-shadow: 0 0 5px var(--gold); }
+  .fdot.low { background: var(--safe); box-shadow: 0 0 5px var(--safe); }
+  .fname { flex: 1; min-width: 0; }
+  .fname-t { font-size: 14px; font-weight: 500; }
+  .fname-p { font-size: 11px; color: var(--muted); }
+  .fphos { font-size: 12px; color: var(--muted); text-align: right; }
+  .fphos-v { font-size: 14px; color: var(--text); font-weight: 500; }
+  .ftag { font-size: 10px; padding: 3px 9px; border-radius: 100px; white-space: nowrap; }
+  .ftag.high { background: rgba(255,45,85,.15); color: var(--danger); }
+  .ftag.medium { background: rgba(255,214,10,.12); color: var(--gold); }
+  .ftag.low { background: rgba(52,199,89,.12); color: var(--safe); }
 
-/* =========== 結合劑教學 =========== */
-.binder-container {
-    max-width: 820px; margin: 0 auto;
-}
-.binder-card {
-    background: white; border-radius: 20px; padding: 2.5rem;
-    box-shadow: var(--shadow-sm); margin-bottom: 1.5rem;
-    border: 1px solid var(--border); position: relative;
-}
-.binder-card h3 {
-    font-family: var(--serif); color: var(--primary);
-    font-size: 1.5rem; margin-bottom: 1rem;
-}
-.timing-visual {
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
-    margin: 1.5rem 0; text-align: center;
-}
-.timing-step {
-    background: var(--bg-warm); padding: 1.5rem 1rem; border-radius: 14px;
-    border: 2px solid var(--border); position: relative;
-}
-.timing-step.correct { background: var(--safe-bg); border-color: var(--safe); }
-.timing-step-time { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 0.5rem; }
-.timing-step-emoji { font-size: 2.5rem; display: block; margin-bottom: 6px; }
-.timing-step-label { font-weight: 700; color: var(--primary); }
-.timing-step-check { font-size: 1.5rem; color: var(--safe); margin-top: 4px; font-weight: 900; }
+  .drug {
+    background: rgba(255,107,53,.06); border: 1px solid rgba(255,107,53,.22);
+    border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 13px;
+  }
+  .drug-ico { font-size: 26px; flex-shrink: 0; }
+  .drug-t { font-size: 13px; line-height: 1.75; color: #e8c8b8; }
+  .drug-t strong { color: var(--warn); }
 
-.reminder-settings {
-    background: var(--bg-warm); padding: 1.5rem; border-radius: 14px;
-    margin-top: 1.5rem;
-}
-.reminder-row {
-    display: flex; align-items: center; gap: 12px; padding: 8px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-.reminder-row:last-child { border-bottom: none; }
-.reminder-row input[type="time"] { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
-.reminder-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); }
+  .advice {
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    border-radius: 11px; padding: 16px 18px;
+  }
+  .advice-h { font-size: 11px; color: var(--accent); letter-spacing: 1.5px; margin-bottom: 9px; }
+  .advice-t { font-size: 14px; line-height: 1.8; color: #c8d8e8; }
 
-/* =========== 底部計算欄 =========== */
-.calc-bar {
-    position: fixed; bottom: 0; left: 0; width: 100%;
-    background: white; border-top: 2px solid var(--accent);
-    padding: 14px 20px; z-index: 99;
-    box-shadow: 0 -10px 30px rgba(44, 95, 93, 0.12);
-    display: flex; justify-content: center; align-items: center; gap: 2rem;
-    transform: translateY(100%); transition: transform 0.3s; flex-wrap: wrap;
-}
-.calc-bar.active { transform: translateY(0); }
-.calc-item { text-align: center; }
-.calc-label { font-size: 0.78rem; color: var(--text-soft); }
-.calc-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); font-family: var(--serif); }
-.calc-value.danger { color: var(--danger); }
-.calc-clear {
-    padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border);
-    background: white; cursor: pointer; font-family: var(--sans); font-size: 0.9rem;
-}
+  .alts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .alt {
+    background: rgba(0,212,170,.05); border: 1px solid rgba(0,212,170,.15);
+    border-radius: 11px; padding: 13px 15px;
+  }
+  .alt-h { font-size: 10px; color: var(--accent); margin-bottom: 4px; }
+  .alt-n { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .alt-d { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
-/* =========== 彈窗 =========== */
-.modal-overlay {
-    position: fixed; inset: 0; background: rgba(44, 95, 93, 0.5);
-    display: none; align-items: center; justify-content: center; z-index: 300;
-    padding: 20px; backdrop-filter: blur(4px);
-}
-.modal-overlay.active { display: flex; }
-.modal {
-    background: white; width: 100%; max-width: 480px; border-radius: 22px;
-    padding: 2.5rem; position: relative; box-shadow: var(--shadow-lg);
-    animation: popIn 0.3s;
-}
-.modal h2 { font-family: var(--serif); color: var(--primary); margin-bottom: 1.2rem; }
-.modal-close {
-    position: absolute; top: 16px; right: 18px; background: none;
-    border: none; font-size: 1.8rem; color: var(--text-soft); cursor: pointer;
-}
-.data-row {
-    display: flex; justify-content: space-between; padding: 12px 0;
-    border-bottom: 1px solid var(--border); font-size: 1rem;
-}
-.data-row:last-child { border-bottom: none; }
-.data-row strong { color: var(--primary); font-family: var(--serif); font-size: 1.15rem; }
+  .footer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 26px; border-top: 1px solid var(--border); padding-top: 18px; line-height: 1.9; opacity: .7; }
+  .footer a { color: var(--accent); text-decoration: none; cursor: pointer; }
 
-/* =========== 研究員後台 =========== */
-.admin-card {
-    background: white; border-radius: 18px; padding: 2rem;
-    box-shadow: var(--shadow-sm); margin-bottom: 1.5rem;
-    border: 1px solid var(--border);
-}
-.stats-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem; margin-bottom: 1.5rem;
-}
-.stat-box {
-    background: var(--bg-warm); padding: 1.2rem; border-radius: 14px;
-    text-align: center; border-left: 4px solid var(--accent);
-}
-.stat-value { font-family: var(--serif); font-size: 2rem; color: var(--primary); font-weight: 700; }
-.stat-label { font-size: 0.85rem; color: var(--text-soft); }
-.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.btn-row button {
-    padding: 10px 20px; border-radius: 10px; border: none;
-    cursor: pointer; font-family: var(--sans); font-weight: 500;
-    font-size: 0.95rem;
-}
-.btn-export { background: var(--primary); color: white; }
-.btn-clear { background: var(--danger); color: white; }
-
-footer {
-    text-align: center; padding: 2rem; color: var(--text-soft);
-    font-size: 0.85rem; border-top: 1px solid var(--border);
-    margin-top: 3rem; background: white;
-}
-
-@keyframes popIn {
-    from { transform: scale(0.92); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-@media (max-width: 640px) {
-    body { font-size: 16px; }
-    .hero { padding: 2rem 1.5rem; }
-    .hero h2 { font-size: 1.7rem; }
-    .exam-container, .article-reader, .scenario-card { padding: 1.8rem 1.5rem; }
-    .quiz-food-name { font-size: 2rem; }
-    .quiz-btn { width: 95px; height: 95px; font-size: 1.5rem; }
-    .section-title { font-size: 1.6rem; }
-}
+  @keyframes pop { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes glow { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
 </style>
 </head>
 <body>
+<div class="container">
 
-<!-- ============ 登入畫面 ============ -->
-<div class="login-overlay" id="loginOverlay">
-    <div class="login-card">
-        <h1>磷的平衡</h1>
-        <p class="subtitle">洗腎病友控磷衛教學習平台</p>
+  <!-- API Key setup (first time) -->
+  <div id="setup" class="setup" style="display:none;">
+    <h2>🔑 首次使用設定</h2>
+    <p>
+      本工具使用 Google Gemini AI 進行食物辨識。<br>
+      您需要一組<strong style="color:var(--accent)">免費</strong>的 API 金鑰才能開始使用。
+    </p>
+    <p style="background:var(--bg);padding:12px;border-radius:8px;font-size:12px;">
+      <strong style="color:var(--text)">如何取得免費金鑰：</strong><br>
+      1. 前往 <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a><br>
+      2. 用 Google 帳號登入<br>
+      3. 點「Create API key」複製金鑰<br>
+      4. 貼到下方即可（金鑰只會儲存在您的裝置上）
+    </p>
+    <input type="password" id="apikey-input" placeholder="貼上您的 Gemini API Key (AIza...)">
+    <button onclick="saveKey()">儲存並開始使用</button>
+    <p class="small">
+      🔒 金鑰僅儲存於您的手機/電腦瀏覽器，不會上傳任何伺服器
+    </p>
+  </div>
 
-        <label>受試者編號 / 學員代號</label>
-        <input type="text" id="userId" placeholder="例：P001" maxlength="20">
+  <!-- Main app -->
+  <div id="app">
 
-        <label>年齡組</label>
-        <select id="userAge">
-            <option value="">請選擇</option>
-            <option value="under40">40 歲以下</option>
-            <option value="40-59">40-59 歲</option>
-            <option value="60-74">60-74 歲</option>
-            <option value="over75">75 歲以上</option>
-        </select>
-
-        <label>洗腎年資</label>
-        <select id="userDialysisYears">
-            <option value="">請選擇</option>
-            <option value="new">未滿 1 年</option>
-            <option value="1-3">1-3 年</option>
-            <option value="3-5">3-5 年</option>
-            <option value="over5">5 年以上</option>
-        </select>
-
-        <div class="consent-box">
-            <strong>研究資料聲明</strong><br>
-            本平台將匿名記錄您的學習歷程（作答時間、選擇、閱讀紀錄），僅用於衛教成效研究，不含個人可識別資訊。
-            <label style="margin-top: 10px; display: block;">
-                <input type="checkbox" id="consentCheck"> 我已了解並同意參與
-            </label>
-        </div>
-
-        <button class="login-btn" onclick="doLogin()">開始學習</button>
+    <div class="header">
+      <div class="badge">
+        <div class="badge-dot"></div>
+        AI PHOSPHORUS DETECTOR
+      </div>
+      <h1>磷 <span>警示</span> 飲食辨識</h1>
+      <p class="subtitle">專為血液透析患者設計<br>上傳餐點照片，AI即時分析磷含量風險</p>
     </div>
+
+    <!-- Upload -->
+    <div id="stage-upload" class="upload-zone" onclick="document.getElementById('fi').click()">
+      <span class="upload-ico">📸</span>
+      <div class="upload-t">點擊選擇餐點照片</div>
+      <div class="upload-h">支援 JPG、PNG、WEBP</div>
+      <input type="file" id="fi" accept="image/*" style="display:none;">
+    </div>
+
+    <!-- Preview -->
+    <div id="stage-preview" style="display:none;">
+      <div class="preview">
+        <img id="pv-img">
+        <div class="preview-bar">
+          <button class="btn-small" onclick="reset()">更換照片</button>
+        </div>
+      </div>
+      <button class="btn-main" onclick="analyze()">🔬 開始 AI 血磷分析</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="stage-loading" class="loading" style="display:none;">
+      <div class="spinner"></div>
+      <div class="loading-t">AI 正在辨識您的餐點...</div>
+      <div id="steps">
+        <div class="step" id="s1">▸ 解析影像內容</div>
+        <div class="step" id="s2">▸ 辨識食物種類</div>
+        <div class="step" id="s3">▸ 計算磷含量風險</div>
+        <div class="step" id="s4">▸ 生成個人化建議</div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="stage-error" class="error" style="display:none;">
+      <div class="error-ico">⚠️</div>
+      <div class="error-msg">
+        分析時發生錯誤，請稍後再試<br>
+        <span class="error-det" id="err-det"></span>
+      </div>
+      <button class="btn-ghost" onclick="reset()">重新嘗試</button>
+    </div>
+
+    <!-- Result -->
+    <div id="stage-result" style="display:none;"></div>
+
+    <div class="footer">
+      本工具僅供衛教輔助參考，不取代醫療團隊之臨床判斷<br>
+      磷含量數值為估算值，透析患者請依醫師指示進行飲食管理<br>
+      <a onclick="clearKey()">重新設定 API 金鑰</a>
+    </div>
+  </div>
+
 </div>
-
-<!-- ============ 頂部 ============ -->
-<header>
-    <div class="header-inner">
-        <div class="brand">
-            <div class="brand-icon">磷</div>
-            <div class="brand-text">
-                <h1>磷的平衡</h1>
-                <p>洗腎病友衛教學習平台</p>
-            </div>
-        </div>
-        <div class="user-badge" id="userBadge">
-            <span>👤</span> <strong id="displayUserId">--</strong>
-        </div>
-    </div>
-    <nav class="nav-tabs">
-        <button class="nav-btn active" onclick="switchTab('home')"><span class="icon">🏠</span>首頁</button>
-        <button class="nav-btn" onclick="switchTab('articles')"><span class="icon">📖</span>衛教知識</button>
-        <button class="nav-btn" onclick="switchTab('list')"><span class="icon">🥗</span>食物紅綠燈</button>
-        <button class="nav-btn" onclick="switchTab('exam')"><span class="icon">🎓</span>隨機測驗</button>
-        <button class="nav-btn" onclick="switchTab('scenario')"><span class="icon">🍱</span>情境題</button>
-        <button class="nav-btn" onclick="switchTab('binder')"><span class="icon">💊</span>結合劑教學</button>
-        <button class="nav-btn" onclick="switchTab('diary')"><span class="icon">📝</span>飲食日記</button>
-        <button class="nav-btn" onclick="switchTab('admin')"><span class="icon">🔬</span>研究資料</button>
-    </nav>
-</header>
-
-<main>
-
-<!-- ============ 首頁 ============ -->
-<section id="homeView" class="view-section active">
-    <div class="hero">
-        <h2>今天，為自己的身體多了解一點</h2>
-        <p>腎友飲食的關鍵不在禁食，而在智慧選擇。這裡提供科學實證的衛教資訊，陪您一步步建立屬於自己的控磷節奏。</p>
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-value" id="heroLearned">0</div>
-                <div class="hero-stat-label">已閱讀文章</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-value" id="heroQuizzes">0</div>
-                <div class="hero-stat-label">完成測驗次數</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-value" id="heroAccuracy">--</div>
-                <div class="hero-stat-label">平均答對率</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-value" id="heroDiary">0</div>
-                <div class="hero-stat-label">飲食紀錄</div>
-            </div>
-        </div>
-    </div>
-
-    <h2 class="section-title">學習模組</h2>
-    <p class="section-subtitle">從任一模組開始，依照您的節奏學習</p>
-
-    <div class="module-grid">
-        <div class="module-card" onclick="switchTab('articles')">
-            <div class="module-icon">📖</div>
-            <div class="module-title">衛教知識</div>
-            <div class="module-desc">從基礎開始：什麼是磷？為什麼洗腎病友要控制磷？高磷血症有什麼影響？</div>
-        </div>
-        <div class="module-card" onclick="switchTab('list')">
-            <div class="module-icon">🥗</div>
-            <div class="module-title">食物紅綠燈</div>
-            <div class="module-desc">以紅黃綠三色標示磷含量，快速查詢常見食物的磷/蛋白比值。</div>
-        </div>
-        <div class="module-card" onclick="switchTab('exam')">
-            <div class="module-icon">🎓</div>
-            <div class="module-title">隨機測驗</div>
-            <div class="module-desc">10 題快速挑戰，檢測您對食物磷含量的認識程度。</div>
-        </div>
-        <div class="module-card" onclick="switchTab('scenario')">
-            <div class="module-icon">🍱</div>
-            <div class="module-title">情境題</div>
-            <div class="module-desc">模擬真實用餐情境，練習從一桌菜中做出聰明選擇。</div>
-        </div>
-        <div class="module-card" onclick="switchTab('binder')">
-            <div class="module-icon">💊</div>
-            <div class="module-title">結合劑教學</div>
-            <div class="module-desc">學習正確的磷結合劑服用時機與注意事項。</div>
-        </div>
-        <div class="module-card" onclick="switchTab('diary')">
-            <div class="module-icon">📝</div>
-            <div class="module-title">飲食日記</div>
-            <div class="module-desc">記錄每日飲食與結合劑使用情形，建立自我覺察。</div>
-        </div>
-    </div>
-</section>
-
-<!-- ============ 衛教知識文章 ============ -->
-<section id="articlesView" class="view-section">
-    <div id="articlesList">
-        <h2 class="section-title">衛教知識</h2>
-        <p class="section-subtitle">六篇核心文章，從觀念到實作，循序漸進</p>
-        <div class="article-grid" id="articleGrid"></div>
-    </div>
-    <div id="articleReader" style="display:none;"></div>
-</section>
-
-<!-- ============ 食物列表 ============ -->
-<section id="listView" class="view-section">
-    <h2 class="section-title">食物紅綠燈</h2>
-    <p class="section-subtitle">綠燈安心吃 · 黃燈適量吃 · 紅燈要小心</p>
-
-    <div class="legend">
-        <strong>判斷標準：</strong>
-        <div class="legend-item"><span class="legend-dot low"></span>綠燈：磷 &lt; 100mg</div>
-        <div class="legend-item"><span class="legend-dot mid"></span>黃燈：磷 100-250mg</div>
-        <div class="legend-item"><span class="legend-dot high"></span>紅燈：磷 &gt; 250mg</div>
-        <div class="legend-item" style="margin-left:auto;">磷/蛋白比 &lt; 15 較理想</div>
-    </div>
-
-    <div class="control-panel">
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 搜尋食物名稱…(963 筆資料)">
-        <div style="margin-bottom: 1rem;">
-            <label style="display:block; font-size:0.88rem; color:var(--text-soft); margin-bottom:6px;">食物類別</label>
-            <select id="categorySelect" onchange="setCategoryFilter(this.value)" style="width:100%; padding:12px 16px; border:2px solid var(--border); border-radius:12px; font-size:1rem; font-family:var(--sans); background:white; cursor:pointer;">
-                <option value="">請選擇類別開始瀏覽…</option>
-            </select>
-        </div>
-        <div class="filters">
-            <button class="filter-btn active" onclick="setFilter('all')" data-type="all">全部燈號</button>
-            <button class="filter-btn" onclick="setFilter('low')" data-type="low">🟢 綠燈</button>
-            <button class="filter-btn" onclick="setFilter('mid')" data-type="mid">🟡 黃燈</button>
-            <button class="filter-btn" onclick="setFilter('high')" data-type="high">🔴 紅燈</button>
-        </div>
-        <label style="display:flex; align-items:center; gap:10px; margin-top:12px; cursor:pointer; font-size:0.92rem;">
-            <input type="checkbox" id="commonListToggle" checked onchange="populateCategories(); renderList();" style="width:20px; height:20px; accent-color:var(--primary); cursor:pointer;">
-            <span>只顯示常見食物（203 筆）</span>
-        </label>
-        <div id="resultMeta" style="margin-top:10px; font-size:0.85rem; color:var(--text-soft); text-align:center;"></div>
-    </div>
-
-    <div id="resultsArea"></div>
-</section>
-
-<!-- ============ 測驗 ============ -->
-<section id="examView" class="view-section">
-    <div id="examStartScreen" class="exam-container">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🎓</div>
-        <h2 style="font-family: var(--serif); color: var(--primary); font-size: 2rem; margin-bottom: 0.5rem;">控磷小學堂</h2>
-        <p style="color: var(--text-soft); margin-bottom: 1.5rem;">系統將隨機挑選 10 題。<br>請判斷每種食物屬於綠燈、黃燈還是紅燈。</p>
-
-        <div style="background: var(--bg-warm); padding: 1.2rem 1.5rem; border-radius: 14px; margin-bottom: 1.5rem; text-align: left;">
-            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 1rem;">
-                <input type="checkbox" id="commonOnlyToggle" checked style="width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer;">
-                <span>
-                    <strong style="color: var(--primary);">只考常見食物</strong><br>
-                    <span style="font-size: 0.85rem; color: var(--text-soft);" id="toggleHint">從 203 種日常食物中出題（建議）</span>
-                </span>
-            </label>
-        </div>
-
-        <button class="accent-btn" onclick="startExam()">開始挑戰</button>
-    </div>
-
-    <div id="examQuestionScreen" class="exam-container" style="display:none;">
-        <div class="exam-progress">
-            <span>第 <span id="qCurrent">1</span> / 10 題</span>
-            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 10%;"></div></div>
-            <span>得分：<span id="currentScore">0</span></span>
-        </div>
-        <div class="quiz-category-hint" id="qCategory">類別</div>
-        <div class="quiz-food-name" id="qName">食物名稱</div>
-        <div class="quiz-options" id="qOptions">
-            <button class="quiz-btn low" onclick="checkAnswer('low')">🟢<span>綠燈</span></button>
-            <button class="quiz-btn mid" onclick="checkAnswer('mid')">🟡<span>黃燈</span></button>
-            <button class="quiz-btn high" onclick="checkAnswer('high')">🔴<span>紅燈</span></button>
-        </div>
-        <div id="qFeedback" class="feedback-area"></div>
-        <button class="primary-btn" id="nextQBtn" onclick="nextQuestion()">下一題 →</button>
-    </div>
-
-    <div id="examResultScreen" class="exam-container" style="display:none;">
-        <div style="font-size: 4rem;" id="resultEmoji">🏆</div>
-        <h2 style="font-family: var(--serif); color: var(--primary); font-size: 1.8rem;">測驗結束</h2>
-        <div class="score-display"><span id="finalScore">0</span><span style="font-size: 2rem;"> / 100</span></div>
-        <p id="scoreComment" style="color: var(--text-soft); margin-bottom: 1.5rem; font-size: 1.1rem;"></p>
-        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-            <button class="accent-btn" onclick="startExam()">再次挑戰</button>
-            <button class="primary-btn" style="display: inline-block;" onclick="switchTab('articles')">繼續學習</button>
-        </div>
-    </div>
-</section>
-
-<!-- ============ 情境題 ============ -->
-<section id="scenarioView" class="view-section">
-    <h2 class="section-title">情境練習</h2>
-    <p class="section-subtitle">模擬真實生活場景，練習做出聰明選擇</p>
-
-    <div class="scenario-card" id="scenarioCard">
-        <!-- 動態內容 -->
-    </div>
-</section>
-
-<!-- ============ 結合劑教學 ============ -->
-<section id="binderView" class="view-section">
-    <h2 class="section-title">磷結合劑服用教學</h2>
-    <p class="section-subtitle">正確的服用時機，才能發揮最佳效果</p>
-
-    <div class="binder-container">
-        <div class="binder-card">
-            <h3>🤔 什麼是磷結合劑？</h3>
-            <p>磷結合劑是一種在腸道中與食物中的磷結合的藥物，讓磷無法被身體吸收，而是隨糞便排出。對洗腎病友來說，即使嚴格控制飲食，磷仍可能過高，此時結合劑就是不可或缺的幫手。</p>
-        </div>
-
-        <div class="binder-card">
-            <h3>⏰ 正確服用時機</h3>
-            <p style="margin-bottom: 1rem;">重點：<strong style="color: var(--primary);">和食物一起吃下去</strong>才能結合食物中的磷！</p>
-            <div class="timing-visual">
-                <div class="timing-step">
-                    <div class="timing-step-time">餐前 30 分鐘</div>
-                    <span class="timing-step-emoji">❌</span>
-                    <div class="timing-step-label">太早</div>
-                    <div style="font-size: 0.8rem; color: var(--text-soft); margin-top: 4px;">藥物已離開胃</div>
-                </div>
-                <div class="timing-step correct">
-                    <div class="timing-step-time">用餐中</div>
-                    <span class="timing-step-emoji">✅</span>
-                    <div class="timing-step-label">最佳時機</div>
-                    <div class="timing-step-check">✓</div>
-                </div>
-                <div class="timing-step">
-                    <div class="timing-step-time">餐後 1 小時</div>
-                    <span class="timing-step-emoji">❌</span>
-                    <div class="timing-step-label">太晚</div>
-                    <div style="font-size: 0.8rem; color: var(--text-soft); margin-top: 4px;">磷已被吸收</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="binder-card">
-            <h3>💡 常見注意事項</h3>
-            <ul style="margin-left: 1.5rem; line-height: 2;">
-                <li><strong>吃多少配多少：</strong>吃的分量大，結合劑就要服足量；點心也算一餐！</li>
-                <li><strong>不要和鐵劑一起：</strong>可能互相影響吸收，間隔至少 2 小時。</li>
-                <li><strong>忘記吃怎麼辦？</strong>如果餐後還在 15 分鐘內，可以補服；超過就等下一餐。</li>
-                <li><strong>便秘是常見副作用：</strong>多攝取纖維、足量飲水（依醫師建議），必要時告知醫師。</li>
-            </ul>
-        </div>
-
-        <div class="binder-card">
-            <h3>📱 我的服藥提醒</h3>
-            <p style="color: var(--text-soft); margin-bottom: 1rem;">設定用餐時間提醒，讓結合劑成為習慣的一部分</p>
-            <div class="reminder-settings">
-                <div class="reminder-row">
-                    <input type="checkbox" id="rem1" onchange="saveReminder()">
-                    <label for="rem1" style="flex: 1;">早餐</label>
-                    <input type="time" id="remTime1" value="07:30" onchange="saveReminder()">
-                </div>
-                <div class="reminder-row">
-                    <input type="checkbox" id="rem2" onchange="saveReminder()">
-                    <label for="rem2" style="flex: 1;">午餐</label>
-                    <input type="time" id="remTime2" value="12:00" onchange="saveReminder()">
-                </div>
-                <div class="reminder-row">
-                    <input type="checkbox" id="rem3" onchange="saveReminder()">
-                    <label for="rem3" style="flex: 1;">晚餐</label>
-                    <input type="time" id="remTime3" value="18:30" onchange="saveReminder()">
-                </div>
-                <div class="reminder-row">
-                    <input type="checkbox" id="rem4" onchange="saveReminder()">
-                    <label for="rem4" style="flex: 1;">點心/宵夜</label>
-                    <input type="time" id="remTime4" value="21:00" onchange="saveReminder()">
-                </div>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-soft); margin-top: 1rem;">⚠️ 此為學習工具，實際服藥請遵照醫囑。</p>
-        </div>
-    </div>
-</section>
-
-<!-- ============ 飲食日記 ============ -->
-<section id="diaryView" class="view-section">
-    <h2 class="section-title">飲食日記</h2>
-    <p class="section-subtitle">建立自我覺察，找出屬於您的控磷節奏</p>
-
-    <div class="diary-layout">
-        <div class="diary-card">
-            <h3>✍️ 新增紀錄</h3>
-            <div class="diary-form">
-                <label>用餐時段</label>
-                <select id="diaryMeal">
-                    <option value="早餐">早餐</option>
-                    <option value="午餐">午餐</option>
-                    <option value="晚餐">晚餐</option>
-                    <option value="點心">點心</option>
-                </select>
-
-                <label>吃了什麼</label>
-                <textarea id="diaryFood" placeholder="例：白飯一碗、清蒸鱸魚半條、炒青菜"></textarea>
-
-                <label>有服用磷結合劑嗎？</label>
-                <select id="diaryBinder">
-                    <option value="yes">✅ 有，隨餐服用</option>
-                    <option value="late">⚠️ 有，但忘記隨餐</option>
-                    <option value="no">❌ 忘記服用</option>
-                </select>
-
-                <label>身體感受（選填）</label>
-                <input type="text" id="diaryNote" placeholder="例：吃完有點脹、口渴…">
-
-                <button class="accent-btn" style="width: 100%; margin-top: 0.5rem;" onclick="saveDiary()">儲存紀錄</button>
-            </div>
-        </div>
-
-        <div class="diary-card">
-            <h3>📅 近期紀錄</h3>
-            <div id="diaryEntries" style="max-height: 500px; overflow-y: auto;">
-                <p style="color: var(--text-soft); text-align: center; padding: 2rem;">尚無紀錄，開始您的第一筆日記吧！</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ============ 研究資料後台 ============ -->
-<section id="adminView" class="view-section">
-    <h2 class="section-title">研究資料管理</h2>
-    <p class="section-subtitle">檢視學習歷程，匯出研究資料</p>
-
-    <div class="admin-card">
-        <h3 style="font-family: var(--serif); color: var(--primary); margin-bottom: 1rem;">☁️ 雲端同步狀態</h3>
-        <div id="syncStatus"></div>
-    </div>
-
-    <div class="admin-card">
-        <h3 style="font-family: var(--serif); color: var(--primary); margin-bottom: 1rem;">📊 您的學習統計</h3>
-        <div class="stats-grid" id="adminStats"></div>
-    </div>
-
-    <div class="admin-card">
-        <h3 style="font-family: var(--serif); color: var(--primary); margin-bottom: 1rem;">📥 資料匯出（研究員使用）</h3>
-        <p style="color: var(--text-soft); margin-bottom: 1rem;">匯出所有行為資料為 CSV 檔案，用於後續分析。資料包含：作答紀錄、閱讀紀錄、日記紀錄、時間戳記。</p>
-        <div class="btn-row">
-            <button class="btn-export" onclick="exportData('quiz')">📥 匯出測驗資料</button>
-            <button class="btn-export" onclick="exportData('article')">📥 匯出閱讀紀錄</button>
-            <button class="btn-export" onclick="exportData('diary')">📥 匯出飲食日記</button>
-            <button class="btn-export" onclick="exportData('scenario')">📥 匯出情境題</button>
-            <button class="btn-export" onclick="exportData('all')">📥 匯出全部（JSON）</button>
-            <button class="btn-clear" onclick="clearData()">🗑 清除本機資料</button>
-        </div>
-    </div>
-
-    <div class="admin-card">
-        <h3 style="font-family: var(--serif); color: var(--primary); margin-bottom: 1rem;">📋 最近活動紀錄</h3>
-        <div id="recentLogs" style="max-height: 400px; overflow-y: auto; font-size: 0.9rem;"></div>
-    </div>
-</section>
-
-</main>
-
-<!-- ============ 底部計算欄 ============ -->
-<div class="calc-bar" id="calcBar">
-    <div class="calc-item">
-        <div class="calc-label">已選項目</div>
-        <div class="calc-value" id="totalCount">0</div>
-    </div>
-    <div class="calc-item">
-        <div class="calc-label">總磷 (mg)</div>
-        <div class="calc-value" id="totalPhos">0</div>
-    </div>
-    <div class="calc-item">
-        <div class="calc-label">總蛋白 (g)</div>
-        <div class="calc-value" id="totalProt">0</div>
-    </div>
-    <div class="calc-item">
-        <div class="calc-label">磷/蛋白比</div>
-        <div class="calc-value" id="totalRatio">--</div>
-    </div>
-    <button class="calc-clear" onclick="resetSelection()">清除</button>
-</div>
-
-<!-- ============ 食物詳情彈窗 ============ -->
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal()">&times;</button>
-        <h2 id="mName">食物名稱</h2>
-        <div class="data-row"><span>磷含量</span> <strong id="mPhos">0 mg</strong></div>
-        <div class="data-row"><span>蛋白質</span> <span id="mProt">0 g</span></div>
-        <div class="data-row"><span>熱量</span> <span id="mKcal">0 kcal</span></div>
-        <div class="data-row"><span>磷/蛋白比</span> <span id="mRatio">0</span></div>
-        <div class="data-row"><span>分類</span> <span id="mCat">--</span></div>
-    </div>
-</div>
-
-<footer>
-    磷的平衡 · 洗腎病友衛教學習平台 &nbsp;|&nbsp; 僅供學習與研究使用，實際飲食與服藥請遵照醫護人員指示
-</footer>
 
 <script>
-/* ============================================================
-   內建食物資料庫（可替換成您研究資料）
-   ============================================================ */
-const FOOD_DB = [
-{n:"高麗菜",c:"新鮮蔬菜",p:28,pr:1.3,k:23,cm:1},
-{n:"小白菜",c:"新鮮蔬菜",p:37,pr:1.4,k:13,cm:1},
-{n:"青江菜",c:"新鮮蔬菜",p:29,pr:1.4,k:13,cm:1},
-{n:"菠菜",c:"新鮮蔬菜",p:47,pr:2.2,k:22,cm:1},
-{n:"空心菜",c:"新鮮蔬菜",p:37,pr:1.4,k:20,cm:1},
-{n:"地瓜葉",c:"新鮮蔬菜",p:30,pr:3.2,k:30,cm:1},
-{n:"A菜",c:"新鮮蔬菜",p:30,pr:1.3,k:13,cm:1},
-{n:"大白菜",c:"新鮮蔬菜",p:37,pr:1.2,k:17,cm:1},
-{n:"花椰菜",c:"新鮮蔬菜",p:57,pr:2.2,k:23,cm:1},
-{n:"青花菜",c:"新鮮蔬菜",p:67,pr:3.7,k:28,cm:1},
-{n:"番茄",c:"新鮮蔬菜",p:16,pr:0.9,k:19,cm:1},
-{n:"小番茄",c:"新鮮蔬菜",p:28,pr:1.2,k:33,cm:1},
-{n:"小黃瓜",c:"新鮮蔬菜",p:26,pr:0.9,k:13,cm:1},
-{n:"大黃瓜",c:"新鮮蔬菜",p:15,pr:0.5,k:9,cm:1},
-{n:"絲瓜",c:"新鮮蔬菜",p:25,pr:1.1,k:17,cm:1},
-{n:"冬瓜",c:"新鮮蔬菜",p:10,pr:0.4,k:13,cm:1},
-{n:"苦瓜",c:"新鮮蔬菜",p:28,pr:0.9,k:18,cm:1},
-{n:"茄子",c:"新鮮蔬菜",p:22,pr:1.2,k:23,cm:1},
-{n:"青椒",c:"新鮮蔬菜",p:26,pr:0.8,k:23,cm:1},
-{n:"紅椒",c:"新鮮蔬菜",p:25,pr:0.9,k:33,cm:1},
-{n:"甜豌豆莢",c:"新鮮蔬菜",p:55,pr:2.8,k:39,cm:1},
-{n:"敏豆",c:"新鮮蔬菜",p:37,pr:1.8,k:29,cm:1},
-{n:"四季豆",c:"新鮮蔬菜",p:41,pr:1.7,k:30,cm:1},
-{n:"蘆筍",c:"新鮮蔬菜",p:66,pr:2.4,k:22,cm:1},
-{n:"韭菜",c:"新鮮蔬菜",p:36,pr:1.9,k:23,cm:1},
-{n:"芹菜",c:"新鮮蔬菜",p:31,pr:0.8,k:15,cm:1},
-{n:"紅蘿蔔",c:"新鮮蔬菜",p:28,pr:1.0,k:39,cm:1},
-{n:"白蘿蔔",c:"新鮮蔬菜",p:17,pr:0.5,k:16,cm:1},
-{n:"洋蔥",c:"新鮮蔬菜",p:30,pr:1.0,k:41,cm:1},
-{n:"青蔥",c:"新鮮蔬菜",p:28,pr:1.7,k:28,cm:1},
-{n:"大蒜",c:"新鮮蔬菜",p:140,pr:6.7,k:122,cm:1},
-{n:"竹筍",c:"新鮮蔬菜",p:47,pr:2.5,k:22,cm:1},
-{n:"玉米筍",c:"新鮮蔬菜",p:41,pr:2.2,k:27,cm:1},
-{n:"蘋果",c:"新鮮水果",p:11,pr:0.2,k:51,cm:1},
-{n:"香蕉",c:"新鮮水果",p:22,pr:1.5,k:85,cm:1},
-{n:"西瓜",c:"新鮮水果",p:9,pr:0.8,k:33,cm:1},
-{n:"鳳梨",c:"新鮮水果",p:10,pr:0.7,k:53,cm:1},
-{n:"葡萄",c:"新鮮水果",p:16,pr:0.5,k:64,cm:1},
-{n:"葡萄柚",c:"新鮮水果",p:16,pr:0.8,k:33,cm:1},
-{n:"柳丁",c:"新鮮水果",p:21,pr:0.8,k:43,cm:1},
-{n:"橘子",c:"新鮮水果",p:14,pr:0.8,k:40,cm:1},
-{n:"檸檬",c:"新鮮水果",p:19,pr:0.7,k:33,cm:1},
-{n:"芭樂",c:"新鮮水果",p:15,pr:0.7,k:38,cm:1},
-{n:"木瓜",c:"新鮮水果",p:6,pr:0.6,k:38,cm:1},
-{n:"芒果",c:"新鮮水果",p:13,pr:0.6,k:50,cm:1},
-{n:"荔枝",c:"新鮮水果",p:33,pr:0.9,k:65,cm:1},
-{n:"龍眼",c:"新鮮水果",p:25,pr:1.2,k:73,cm:1},
-{n:"蓮霧",c:"新鮮水果",p:15,pr:0.4,k:35,cm:1},
-{n:"桃子",c:"新鮮水果",p:17,pr:0.7,k:37,cm:1},
-{n:"梨子",c:"新鮮水果",p:11,pr:0.4,k:42,cm:1},
-{n:"奇異果",c:"新鮮水果",p:34,pr:1.1,k:56,cm:1},
-{n:"草莓",c:"新鮮水果",p:28,pr:1.0,k:39,cm:1},
-{n:"櫻桃",c:"新鮮水果",p:18,pr:1.2,k:71,cm:1},
-{n:"火龍果",c:"新鮮水果",p:27,pr:0.9,k:50,cm:1},
-{n:"百香果",c:"新鮮水果",p:52,pr:2.2,k:64,cm:1},
-{n:"酪梨",c:"新鮮水果",p:50,pr:1.9,k:73,cm:1},
-{n:"榴槤",c:"新鮮水果",p:38,pr:2.6,k:136,cm:1},
-{n:"大麥仁",c:"穀物類",p:165.0,pr:8.6,k:365.0,cm:0},
-{n:"大麥片",c:"穀物類",p:129.0,pr:8.6,k:365.0,cm:0},
-{n:"大麥仁粉",c:"穀物類",p:166.0,pr:7.1,k:389.0,cm:0},
-{n:"小米",c:"穀物類",p:164.0,pr:11.3,k:370.0,cm:1},
-{n:"糯小米",c:"穀物類",p:108.0,pr:12.5,k:360.0,cm:0},
-{n:"小麥",c:"穀物類",p:241.0,pr:14.1,k:362.0,cm:0},
-{n:"小麥胚芽",c:"穀物類",p:1173.0,pr:31.4,k:417.0,cm:0},
-{n:"去筋麵粉",c:"穀物類",p:38.0,pr:0.2,k:355.0,cm:0},
-{n:"低筋麵粉",c:"穀物類",p:75.0,pr:8.1,k:364.0,cm:0},
-{n:"中筋麵粉",c:"穀物類",p:76.0,pr:11.5,k:361.0,cm:1},
-{n:"高筋麵粉",c:"穀物類",p:81.0,pr:12.9,k:362.0,cm:0},
-{n:"全麥麵粉",c:"穀物類",p:251.0,pr:13.0,k:359.0,cm:1},
-{n:"雜糧中筋麵粉",c:"穀物類",p:175.0,pr:13.1,k:361.0,cm:1},
-{n:"雜糧高筋麵粉",c:"穀物類",p:191.0,pr:14.3,k:360.0,cm:0},
-{n:"白玉米",c:"穀物類",p:100.0,pr:3.4,k:66.0,cm:1},
-{n:"紫玉米",c:"穀物類",p:139.0,pr:4.5,k:168.0,cm:0},
-{n:"甜玉米",c:"穀物類",p:84.0,pr:3.3,k:107.0,cm:1},
-{n:"雙色水果玉米",c:"穀物類",p:92.0,pr:3.1,k:105.0,cm:0},
-{n:"糯玉米",c:"穀物類",p:137.0,pr:4.7,k:172.0,cm:0},
-{n:"冷凍玉米粒",c:"穀物類",p:72.0,pr:3.1,k:174.0,cm:0},
-{n:"乾玉米粒",c:"穀物類",p:273.0,pr:10.9,k:373.0,cm:0},
-{n:"玉米胚芽",c:"穀物類",p:65.0,pr:7.0,k:366.0,cm:0},
-{n:"玉米粉",c:"穀物類",p:14.0,pr:0.3,k:369.0,cm:0},
-{n:"秈米平均值",c:"穀物類",p:75.0,pr:7.8,k:357.0,cm:0},
-{n:"稉米平均值",c:"穀物類",p:81.0,pr:7.0,k:354.0,cm:0},
-{n:"越光米",c:"穀物類",p:89.0,pr:7.6,k:340.0,cm:0},
-{n:"黑秈糯糙米",c:"穀物類",p:205.0,pr:10.1,k:357.0,cm:0},
-{n:"糙秈米",c:"穀物類",p:345.0,pr:7.3,k:359.0,cm:0},
-{n:"黑秈糙米",c:"穀物類",p:324.0,pr:7.5,k:363.0,cm:0},
-{n:"加鈣米",c:"穀物類",p:87.0,pr:7.4,k:355.0,cm:0},
-{n:"高纖米",c:"穀物類",p:283.0,pr:8.3,k:363.0,cm:0},
-{n:"五穀米",c:"穀物類",p:347.0,pr:8.7,k:358.0,cm:0},
-{n:"米胚芽",c:"穀物類",p:1604.0,pr:17.0,k:391.0,cm:0},
-{n:"秈米粉",c:"穀物類",p:55.0,pr:4.2,k:363.0,cm:0},
-{n:"糙米粉",c:"穀物類",p:193.0,pr:11.3,k:393.0,cm:0},
-{n:"白糯米粉",c:"穀物類",p:49.0,pr:4.5,k:360.0,cm:0},
-{n:"白飯",c:"穀物類",p:39.0,pr:3.1,k:183.0,cm:1},
-{n:"高梁",c:"穀物類",p:151.0,pr:11.0,k:372.0,cm:0},
-{n:"糯高梁",c:"穀物類",p:75.0,pr:10.7,k:362.0,cm:0},
-{n:"黑麥片",c:"穀物類",p:203.0,pr:7.8,k:359.0,cm:0},
-{n:"燕麥",c:"穀物類",p:292.0,pr:10.9,k:406.0,cm:1},
-{n:"燕麥片",c:"穀物類",p:116.0,pr:12.3,k:393.0,cm:0},
-{n:"即食燕麥片",c:"穀物類",p:359.0,pr:11.9,k:406.0,cm:0},
-{n:"蕎麥(甜蕎)",c:"穀物類",p:299.0,pr:11.0,k:361.0,cm:1},
-{n:"薏仁",c:"穀物類",p:301.0,pr:14.1,k:378.0,cm:0},
-{n:"糙薏仁",c:"穀物類",p:489.0,pr:13.7,k:387.0,cm:0},
-{n:"薏仁粉",c:"穀物類",p:211.0,pr:10.9,k:395.0,cm:0},
-{n:"紅藜麥",c:"穀物類",p:274.0,pr:12.1,k:379.0,cm:0},
-{n:"台灣藜(紅)(帶殼)",c:"穀物類",p:444.0,pr:14.9,k:386.0,cm:0},
-{n:"淮山",c:"澱粉類",p:93.0,pr:5.3,k:363.0,cm:0},
-{n:"山藥平均值",c:"澱粉類",p:48.0,pr:2.8,k:85.0,cm:1},
-{n:"紫山藥",c:"澱粉類",p:42.0,pr:2.8,k:92.0,cm:1},
-{n:"木薯粉",c:"澱粉類",p:7.0,pr:0.1,k:362.0,cm:0},
-{n:"白皮甘藷",c:"澱粉類",p:40.0,pr:1.3,k:119.0,cm:1},
-{n:"菱角牛奶甘藷",c:"澱粉類",p:49.0,pr:1.9,k:133.0,cm:0},
-{n:"芋心甘藷",c:"澱粉類",p:45.0,pr:1.1,k:122.0,cm:0},
-{n:"紅肉甘藷",c:"澱粉類",p:52.0,pr:1.8,k:114.0,cm:1},
-{n:"金時甘藷",c:"澱粉類",p:52.0,pr:1.6,k:138.0,cm:0},
-{n:"黃肉甘藷",c:"澱粉類",p:42.0,pr:1.3,k:121.0,cm:1},
-{n:"甘藷粉",c:"澱粉類",p:9.0,pr:1.0,k:358.0,cm:0},
-{n:"油炸脫水甘藷",c:"澱粉類",p:119.0,pr:2.3,k:525.0,cm:0},
-{n:"芋頭",c:"澱粉類",p:64.0,pr:2.5,k:128.0,cm:1},
-{n:"小芋頭(山芋)",c:"澱粉類",p:102.0,pr:2.3,k:113.0,cm:0},
-{n:"檳榔心芋",c:"澱粉類",p:71.0,pr:1.3,k:121.0,cm:0},
-{n:"檳榔心芋(2021年取樣)",c:"澱粉類",p:49.0,pr:1.1,k:107.0,cm:0},
-{n:"冷凍芋頭塊",c:"澱粉類",p:68.0,pr:2.2,k:147.0,cm:0},
-{n:"芋頭粉",c:"澱粉類",p:3.0,pr:0.1,k:333.0,cm:0},
-{n:"豆薯",c:"澱粉類",p:16.0,pr:0.7,k:31.0,cm:0},
-{n:"馬鈴薯粉",c:"澱粉類",p:29.0,pr:0.1,k:346.0,cm:0},
-{n:"蓮藕",c:"澱粉類",p:64.0,pr:2.0,k:65.0,cm:1},
-{n:"蓮藕粉",c:"澱粉類",p:14.0,pr:0.1,k:365.0,cm:0},
-{n:"菱角(生)",c:"澱粉類",p:83.0,pr:1.9,k:76.0,cm:1},
-{n:"菱角仁(生)",c:"澱粉類",p:133.0,pr:4.1,k:118.0,cm:0},
-{n:"菱角(熟)",c:"澱粉類",p:179.0,pr:4.2,k:146.0,cm:0},
-{n:"蒟蒻粉",c:"澱粉類",p:83.0,pr:0.2,k:351.0,cm:0},
-{n:"甘扁桃仁片(生)",c:"堅果及種子類",p:481.0,pr:27.3,k:564.0,cm:0},
-{n:"松子仁(生)",c:"堅果及種子類",p:611.0,pr:16.6,k:678.0,cm:0},
-{n:"原味松子仁",c:"堅果及種子類",p:630.0,pr:14.5,k:680.0,cm:1},
-{n:"原味夏威夷豆",c:"堅果及種子類",p:241.0,pr:7.5,k:700.0,cm:0},
-{n:"生核桃",c:"堅果及種子類",p:440.0,pr:15.4,k:667.0,cm:1},
-{n:"栗子(生)",c:"堅果及種子類",p:93.0,pr:3.5,k:186.0,cm:1},
-{n:"栗子仁(生)",c:"堅果及種子類",p:90.0,pr:3.7,k:176.0,cm:0},
-{n:"開心果",c:"堅果及種子類",p:422.0,pr:22.4,k:601.0,cm:1},
-{n:"腰果(生)",c:"堅果及種子類",p:552.0,pr:18.3,k:568.0,cm:1},
-{n:"原味腰果",c:"堅果及種子類",p:516.0,pr:16.4,k:566.0,cm:0},
-{n:"原味榛果",c:"堅果及種子類",p:379.0,pr:13.0,k:672.0,cm:0},
-{n:"山粉圓",c:"堅果及種子類",p:485.0,pr:16.3,k:400.0,cm:0},
-{n:"亞麻仁籽",c:"堅果及種子類",p:503.0,pr:20.8,k:524.0,cm:0},
-{n:"亞麻仁籽粉",c:"堅果及種子類",p:593.0,pr:21.7,k:557.0,cm:0},
-{n:"咖啡豆(曼特寧)",c:"堅果及種子類",p:198.0,pr:13.9,k:437.0,cm:0},
-{n:"奇亞子",c:"堅果及種子類",p:1156.0,pr:21.7,k:483.0,cm:0},
-{n:"白芝麻(生)",c:"堅果及種子類",p:723.0,pr:22.3,k:598.0,cm:1},
-{n:"黑芝麻(生)",c:"堅果及種子類",p:546.0,pr:22.2,k:551.0,cm:1},
-{n:"白芝麻(熟)",c:"堅果及種子類",p:762.0,pr:20.3,k:626.0,cm:0},
-{n:"黑芝麻粉",c:"堅果及種子類",p:627.0,pr:15.7,k:601.0,cm:0},
-{n:"帶殼花生(生)",c:"堅果及種子類",p:246.0,pr:15.3,k:331.0,cm:1},
-{n:"冷凍帶殼花生(熟)",c:"堅果及種子類",p:288.0,pr:17.2,k:344.0,cm:0},
-{n:"黑金剛花生(生)",c:"堅果及種子類",p:554.0,pr:27.6,k:553.0,cm:0},
-{n:"花生粉",c:"堅果及種子類",p:497.0,pr:28.5,k:516.0,cm:0},
-{n:"芡實",c:"堅果及種子類",p:91.0,pr:9.9,k:343.0,cm:0},
-{n:"愛玉子",c:"堅果及種子類",p:279.0,pr:12.2,k:407.0,cm:0},
-{n:"原味葵瓜子(去殼)",c:"堅果及種子類",p:814.0,pr:22.0,k:586.0,cm:1},
-{n:"銀杏果",c:"堅果及種子類",p:83.0,pr:4.1,k:142.0,cm:0},
-{n:"蓮子",c:"堅果及種子類",p:290.0,pr:9.3,k:141.0,cm:1},
-{n:"蓮子(乾)",c:"堅果及種子類",p:666.0,pr:21.8,k:334.0,cm:0},
-{n:"脫水甘藍",c:"蔬菜類",p:147.0,pr:6.9,k:341.0,cm:0},
-{n:"香樁",c:"蔬菜類",p:126.0,pr:4.3,k:99.0,cm:0},
-{n:"花椰菜乾",c:"蔬菜類",p:331.0,pr:16.0,k:291.0,cm:0},
-{n:"金針菜",c:"蔬菜類",p:50.0,pr:2.4,k:40.0,cm:0},
-{n:"金針菜乾",c:"蔬菜類",p:309.0,pr:14.3,k:307.0,cm:0},
-{n:"洛神花乾",c:"蔬菜類",p:296.0,pr:9.0,k:306.0,cm:0},
-{n:"乾長辣椒(紅皮)",c:"蔬菜類",p:298.0,pr:19.9,k:382.0,cm:0},
-{n:"紅毛苔",c:"藻類",p:829.0,pr:39.9,k:265.0,cm:0},
-{n:"紫菜",c:"藻類",p:478.0,pr:28.1,k:268.0,cm:1},
-{n:"熟紫菜",c:"藻類",p:332.0,pr:18.1,k:294.0,cm:1},
-{n:"乾海茸芯",c:"藻類",p:302.0,pr:8.4,k:254.0,cm:0},
-{n:"海帶平均值",c:"藻類",p:11.0,pr:0.7,k:19.0,cm:1},
-{n:"乾海帶",c:"藻類",p:424.0,pr:10.0,k:220.0,cm:0},
-{n:"裙帶菜",c:"藻類",p:109.0,pr:5.0,k:58.0,cm:1},
-{n:"乾裙帶菜",c:"藻類",p:355.0,pr:22.9,k:225.0,cm:0},
-{n:"乾裙帶菜根",c:"藻類",p:208.0,pr:6.2,k:201.0,cm:0},
-{n:"鳳尾藻",c:"藻類",p:210.0,pr:11.7,k:213.0,cm:0},
-{n:"葛仙米藻",c:"藻類",p:3.0,pr:1.3,k:24.0,cm:0},
-{n:"壽司海苔片",c:"藻類",p:863.0,pr:46.5,k:278.0,cm:1},
-{n:"木耳",c:"菇類",p:23.0,pr:0.9,k:38.0,cm:1},
-{n:"冷凍木耳",c:"菇類",p:3.0,pr:0.9,k:51.0,cm:0},
-{n:"乾木耳平均值",c:"菇類",p:443.0,pr:13.8,k:333.0,cm:0},
-{n:"乾木耳(紅耳仔)",c:"菇類",p:98.0,pr:6.1,k:329.0,cm:0},
-{n:"乾木耳(黑耳仔)",c:"菇類",p:788.0,pr:21.4,k:338.0,cm:0},
-{n:"乾川耳",c:"菇類",p:329.0,pr:9.0,k:336.0,cm:0},
-{n:"銀耳",c:"菇類",p:54.0,pr:1.1,k:31.0,cm:1},
-{n:"白毛木耳",c:"菇類",p:22.0,pr:1.2,k:45.0,cm:0},
-{n:"乾銀耳",c:"菇類",p:337.0,pr:9.3,k:310.0,cm:0},
-{n:"草菇",c:"菇類",p:103.0,pr:3.8,k:36.0,cm:1},
-{n:"雞腿菇",c:"菇類",p:98.0,pr:2.1,k:36.0,cm:1},
-{n:"雞腿菇(乾)",c:"菇類",p:872.0,pr:20.1,k:298.0,cm:0},
-{n:"松茸",c:"菇類",p:62.0,pr:3.1,k:36.0,cm:0},
-{n:"雪白菇(長)",c:"菇類",p:86.0,pr:2.1,k:36.0,cm:0},
-{n:"柳松菇",c:"菇類",p:112.0,pr:3.7,k:36.0,cm:1},
-{n:"乾柳松菇",c:"菇類",p:1000.0,pr:23.5,k:286.0,cm:0},
-{n:"香菇平均值",c:"菇類",p:84.0,pr:3.0,k:39.0,cm:1},
-{n:"乾香菇平均值",c:"菇類",p:556.0,pr:20.9,k:321.0,cm:0},
-{n:"杏鮑菇平均值",c:"菇類",p:84.0,pr:2.7,k:41.0,cm:1},
-{n:"猴頭菇",c:"菇類",p:57.0,pr:2.1,k:30.0,cm:1},
-{n:"白鳳豆平均值",c:"豆類",p:400.0,pr:23.8,k:337.0,cm:0},
-{n:"米豆",c:"豆類",p:404.0,pr:21.7,k:349.0,cm:0},
-{n:"花豆",c:"豆類",p:441.0,pr:21.2,k:328.0,cm:0},
-{n:"紅豆",c:"豆類",p:442.0,pr:20.9,k:328.0,cm:1},
-{n:"紅雲豆(大紅豆)",c:"豆類",p:547.0,pr:20.2,k:328.0,cm:0},
-{n:"青仁黑豆",c:"豆類",p:529.0,pr:37.0,k:385.0,cm:1},
-{n:"黃仁黑豆",c:"豆類",p:402.0,pr:20.6,k:253.0,cm:1},
-{n:"黑豆粉",c:"豆類",p:467.0,pr:36.0,k:431.0,cm:0},
-{n:"毛綠豆",c:"豆類",p:439.0,pr:22.1,k:346.0,cm:0},
-{n:"綠豆",c:"豆類",p:372.0,pr:22.8,k:344.0,cm:1},
-{n:"綠豆仁",c:"豆類",p:490.0,pr:24.6,k:339.0,cm:0},
-{n:"綠豆粉",c:"豆類",p:359.0,pr:21.7,k:344.0,cm:0},
-{n:"豇豆(莢)",c:"豆類",p:39.0,pr:2.4,k:35.0,cm:0},
-{n:"萊豆仁(帶膜)",c:"豆類",p:128.0,pr:7.8,k:112.0,cm:0},
-{n:"粉豆莢",c:"豆類",p:40.0,pr:1.7,k:27.0,cm:0},
-{n:"敏豆莢",c:"豆類",p:37.0,pr:1.7,k:30.0,cm:0},
-{n:"冷凍菜豆(莢)",c:"豆類",p:49.0,pr:3.4,k:57.0,cm:0},
-{n:"毛豆仁",c:"豆類",p:203.0,pr:14.6,k:129.0,cm:1},
-{n:"冷凍毛豆仁",c:"豆類",p:166.0,pr:12.5,k:135.0,cm:0},
-{n:"黃豆",c:"豆類",p:445.0,pr:35.6,k:389.0,cm:1},
-{n:"黃豆胚芽",c:"豆類",p:224.0,pr:16.6,k:169.0,cm:0},
-{n:"黃豆粉",c:"豆類",p:563.0,pr:37.4,k:401.0,cm:0},
-{n:"黃豆粉(有機)",c:"豆類",p:576.0,pr:42.0,k:434.0,cm:0},
-{n:"豆漿(無糖)",c:"豆類",p:68.0,pr:3.6,k:35.0,cm:1},
-{n:"豌豆仁",c:"豆類",p:147.0,pr:9.2,k:123.0,cm:1},
-{n:"豌豆莢",c:"豆類",p:55.0,pr:2.9,k:41.0,cm:0},
-{n:"鵲豆莢",c:"豆類",p:40.0,pr:2.4,k:31.0,cm:0},
-{n:"紅扁豆仁",c:"豆類",p:270.0,pr:25.3,k:343.0,cm:0},
-{n:"鷹嘴豆",c:"豆類",p:346.0,pr:19.4,k:364.0,cm:1},
-{n:"樹豆(白)",c:"豆類",p:364.0,pr:22.1,k:325.0,cm:0},
-{n:"翼豆",c:"豆類",p:41.0,pr:2.5,k:31.0,cm:0},
-{n:"天貝(黃豆)",c:"豆類",p:243.0,pr:23.6,k:187.0,cm:0},
-{n:"牛小排平均值",c:"肉類",p:141.0,pr:15.1,k:325.0,cm:1},
-{n:"去骨牛小排",c:"肉類",p:150.0,pr:17.1,k:290.0,cm:0},
-{n:"帶骨牛小排",c:"肉類",p:131.0,pr:13.1,k:360.0,cm:0},
-{n:"無骨牛小排(美牛)",c:"肉類",p:111.0,pr:15.6,k:335.0,cm:0},
-{n:"牛肋條",c:"肉類",p:127.0,pr:18.6,k:225.0,cm:1},
-{n:"牛肋條(2021年取樣)",c:"肉類",p:119.0,pr:15.7,k:358.0,cm:0},
-{n:"沙朗牛排",c:"肉類",p:191.0,pr:20.4,k:162.0,cm:1},
-{n:"板腱",c:"肉類",p:165.0,pr:19.8,k:166.0,cm:0},
-{n:"牛去骨肩胛小排",c:"肉類",p:123.0,pr:16.9,k:233.0,cm:0},
-{n:"牛前胸肉",c:"肉類",p:177.0,pr:14.8,k:331.0,cm:0},
-{n:"牛修清前胸肉",c:"肉類",p:175.0,pr:22.3,k:120.0,cm:0},
-{n:"去骨紐約克牛排",c:"肉類",p:199.0,pr:21.3,k:200.0,cm:0},
-{n:"腓力牛排",c:"肉類",p:161.0,pr:20.6,k:184.0,cm:0},
-{n:"牛後腿肉",c:"肉類",p:203.0,pr:19.4,k:122.0,cm:1},
-{n:"牛後腿股肉",c:"肉類",p:228.0,pr:20.6,k:153.0,cm:0},
-{n:"牛後腿腱子心",c:"肉類",p:184.0,pr:19.8,k:139.0,cm:0},
-{n:"牛後腿腱子心(2022年取樣)",c:"肉類",p:170.0,pr:23.7,k:151.0,cm:0},
-{n:"牛肉火鍋片平均值",c:"肉類",p:141.0,pr:19.1,k:250.0,cm:0},
-{n:"牛五花肉火鍋片",c:"肉類",p:91.0,pr:15.7,k:430.0,cm:0},
-{n:"牛紐約客火鍋片",c:"肉類",p:149.0,pr:20.1,k:263.0,cm:0},
-{n:"牛梅花肉火鍋片",c:"肉類",p:173.0,pr:20.3,k:120.0,cm:0},
-{n:"牛嫩肩里肌火鍋片",c:"肉類",p:151.0,pr:20.0,k:188.0,cm:0},
-{n:"牛肚平均值",c:"肉類",p:34.0,pr:11.4,k:56.0,cm:1},
-{n:"牛肚(瘤胃)",c:"肉類",p:23.0,pr:7.5,k:44.0,cm:0},
-{n:"牛肚切片(瘤胃)",c:"肉類",p:46.0,pr:15.3,k:67.0,cm:0},
-{n:"牛肚(蜂巢胃)",c:"肉類",p:69.0,pr:19.0,k:107.0,cm:0},
-{n:"牛筋",c:"肉類",p:31.0,pr:21.7,k:157.0,cm:1},
-{n:"山羊帶皮羊肉塊",c:"肉類",p:132.0,pr:20.3,k:164.0,cm:0},
-{n:"山羊前腿肉片",c:"肉類",p:168.0,pr:21.3,k:123.0,cm:0},
-{n:"山羊後腿肉火鍋片",c:"肉類",p:171.0,pr:18.9,k:170.0,cm:0},
-{n:"綿羊肉切片",c:"肉類",p:117.0,pr:18.8,k:198.0,cm:1},
-{n:"法式羊排",c:"肉類",p:134.0,pr:18.8,k:260.0,cm:0},
-{n:"去骨肩頸眼羊肉",c:"肉類",p:157.0,pr:17.8,k:198.0,cm:0},
-{n:"小羊腰脊肉",c:"肉類",p:197.0,pr:26.5,k:143.0,cm:0},
-{n:"綿羊腹脅肉火鍋片",c:"肉類",p:153.0,pr:16.9,k:252.0,cm:0},
-{n:"豬下肩肉",c:"肉類",p:198.0,pr:18.1,k:200.0,cm:0},
-{n:"豬下肩瘦肉",c:"肉類",p:206.0,pr:20.1,k:131.0,cm:0},
-{n:"豬上肩肉",c:"肉類",p:137.0,pr:18.9,k:207.0,cm:0},
-{n:"豬肩胛肉",c:"肉類",p:156.0,pr:16.5,k:295.0,cm:0},
-{n:"豬肩胛排",c:"肉類",p:166.0,pr:17.9,k:191.0,cm:0},
-{n:"豬前腿外腱肉",c:"肉類",p:193.0,pr:20.7,k:146.0,cm:0},
-{n:"豬後腿外腱肉",c:"肉類",p:172.0,pr:19.0,k:184.0,cm:0},
-{n:"豬後腿肉",c:"肉類",p:190.0,pr:20.4,k:123.0,cm:1},
-{n:"豬後腿瘦肉",c:"肉類",p:212.0,pr:21.1,k:120.0,cm:0},
-{n:"豬大里肌",c:"肉類",p:128.0,pr:19.2,k:212.0,cm:0},
-{n:"豬大排",c:"肉類",p:204.0,pr:19.1,k:214.0,cm:0},
-{n:"豬小排",c:"肉類",p:161.0,pr:18.0,k:287.0,cm:0},
-{n:"僧帽肌",c:"肉類",p:190.0,pr:20.4,k:209.0,cm:0},
-{n:"豬小里肌",c:"肉類",p:201.0,pr:21.1,k:139.0,cm:0},
-{n:"豬去皮腹脇肉",c:"肉類",p:132.0,pr:14.9,k:360.0,cm:0},
-{n:"豬帶皮腹脇肉",c:"肉類",p:121.0,pr:14.5,k:368.0,cm:0},
-{n:"豬腹脇排",c:"肉類",p:182.0,pr:18.7,k:267.0,cm:0},
-{n:"豬肝連",c:"肉類",p:212.0,pr:14.6,k:220.0,cm:0},
-{n:"豬頰肉",c:"肉類",p:209.0,pr:17.5,k:182.0,cm:0},
-{n:"豬頸肉",c:"肉類",p:130.0,pr:17.2,k:284.0,cm:0},
-{n:"豬絞肉平均值",c:"肉類",p:207.0,pr:18.7,k:212.0,cm:1},
-{n:"豬心",c:"肉類",p:145.0,pr:13.6,k:128.0,cm:1},
-{n:"豬白管",c:"肉類",p:15.0,pr:14.1,k:93.0,cm:0},
-{n:"豬皮",c:"肉類",p:29.0,pr:22.1,k:491.0,cm:0},
-{n:"豬耳",c:"肉類",p:79.0,pr:24.2,k:219.0,cm:0},
-{n:"豬舌",c:"肉類",p:166.0,pr:18.5,k:185.0,cm:0},
-{n:"豬血",c:"肉類",p:70.0,pr:6.3,k:29.0,cm:0},
-{n:"豬尾",c:"肉類",p:97.0,pr:16.2,k:295.0,cm:0},
-{n:"豬肝",c:"肉類",p:328.0,pr:20.8,k:137.0,cm:1},
-{n:"豬肚",c:"肉類",p:100.0,pr:12.4,k:152.0,cm:0},
-{n:"熟豬肚",c:"肉類",p:87.0,pr:16.0,k:137.0,cm:0},
-{n:"豬油渣",c:"肉類",p:84.0,pr:17.4,k:837.0,cm:0},
-{n:"豬軟骨",c:"肉類",p:128.0,pr:15.6,k:332.0,cm:0},
-{n:"豬腎",c:"肉類",p:139.0,pr:15.0,k:82.0,cm:0},
-{n:"豬脾臟",c:"肉類",p:193.0,pr:15.0,k:79.0,cm:0},
-{n:"豬大腸",c:"肉類",p:57.0,pr:6.6,k:198.0,cm:0},
-{n:"豬小腸",c:"肉類",p:83.0,pr:12.5,k:156.0,cm:0},
-{n:"豬空腸",c:"肉類",p:150.0,pr:10.9,k:186.0,cm:0},
-{n:"豬前腳",c:"肉類",p:100.0,pr:21.9,k:252.0,cm:0},
-{n:"豬後腳",c:"肉類",p:114.0,pr:19.5,k:253.0,cm:0},
-{n:"豬蹄膀",c:"肉類",p:84.0,pr:17.1,k:331.0,cm:0},
-{n:"豬腳筋",c:"肉類",p:4.0,pr:14.4,k:72.0,cm:0},
-{n:"豬腦",c:"肉類",p:329.0,pr:10.8,k:125.0,cm:0},
-{n:"土雞",c:"肉類",p:193.0,pr:19.0,k:196.0,cm:1},
-{n:"肉雞",c:"肉類",p:72.0,pr:16.1,k:248.0,cm:0},
-{n:"烏骨雞",c:"肉類",p:159.0,pr:17.9,k:212.0,cm:0},
-{n:"里肌肉平均值",c:"肉類",p:207.0,pr:24.2,k:109.0,cm:0},
-{n:"去皮清肉平均值",c:"肉類",p:216.0,pr:23.3,k:119.0,cm:0},
-{n:"骨腿平均值",c:"肉類",p:143.0,pr:18.0,k:163.0,cm:0},
-{n:"去皮去骨雞腿(肉雞)",c:"肉類",p:184.0,pr:19.8,k:165.0,cm:1},
-{n:"二節翅平均值",c:"肉類",p:101.0,pr:18.1,k:226.0,cm:0},
-{n:"雞絞肉",c:"肉類",p:207.0,pr:27.4,k:131.0,cm:1},
-{n:"雞心(肉雞)",c:"肉類",p:115.0,pr:13.3,k:190.0,cm:0},
-{n:"雞心(肉雞)(2021年取樣)",c:"肉類",p:159.0,pr:14.4,k:204.0,cm:0},
-{n:"雞尾椎",c:"肉類",p:76.0,pr:9.0,k:452.0,cm:0},
-{n:"雞肝(肉雞)",c:"肉類",p:170.0,pr:18.8,k:111.0,cm:1},
-{n:"雞胗(肉雞)",c:"肉類",p:85.0,pr:16.6,k:89.0,cm:0},
-{n:"雞胸骨湯",c:"肉類",p:14.0,pr:1.5,k:9.0,cm:0},
-{n:"雞睪丸",c:"肉類",p:249.0,pr:10.6,k:71.0,cm:0},
-{n:"雞腳(肉雞)",c:"肉類",p:48.0,pr:20.7,k:209.0,cm:0},
-{n:"雞膝軟骨(肉雞)",c:"肉類",p:122.0,pr:20.4,k:107.0,cm:0},
-{n:"雞皮(肉雞)",c:"肉類",p:101.0,pr:11.7,k:442.0,cm:0},
-{n:"太空鴨",c:"肉類",p:156.0,pr:16.0,k:319.0,cm:0},
-{n:"番鴨",c:"肉類",p:167.0,pr:18.2,k:229.0,cm:0},
-{n:"太空鴨(去皮)",c:"肉類",p:190.0,pr:20.1,k:102.0,cm:0},
-{n:"土番鴨",c:"肉類",p:242.0,pr:20.9,k:111.0,cm:0},
-{n:"櫻桃鴨胸肉片",c:"肉類",p:177.0,pr:16.7,k:227.0,cm:1},
-{n:"鴨腿",c:"肉類",p:148.0,pr:14.4,k:282.0,cm:1},
-{n:"鴨血",c:"肉類",p:32.0,pr:6.0,k:29.0,cm:0},
-{n:"鴨胗",c:"肉類",p:112.0,pr:20.5,k:97.0,cm:0},
-{n:"去骨鴨掌",c:"肉類",p:64.0,pr:12.6,k:113.0,cm:0},
-{n:"鴨腸",c:"肉類",p:93.0,pr:13.8,k:94.0,cm:0},
-{n:"鴨翅",c:"肉類",p:100.0,pr:22.8,k:170.0,cm:0},
-{n:"鴨頭",c:"肉類",p:122.0,pr:16.5,k:199.0,cm:0},
-{n:"鴨舌",c:"肉類",p:339.0,pr:16.0,k:187.0,cm:0},
-{n:"鵝肉",c:"肉類",p:137.0,pr:15.6,k:187.0,cm:0},
-{n:"鵝胸肉",c:"肉類",p:228.0,pr:23.5,k:120.0,cm:0},
-{n:"鵝腿肉",c:"肉類",p:166.0,pr:21.7,k:130.0,cm:0},
-{n:"鵝心",c:"肉類",p:184.0,pr:14.5,k:241.0,cm:0},
-{n:"鵝肝",c:"肉類",p:287.0,pr:20.5,k:123.0,cm:0},
-{n:"鵝胗",c:"肉類",p:115.0,pr:17.4,k:95.0,cm:0},
-{n:"鵝腸",c:"肉類",p:55.0,pr:9.2,k:63.0,cm:0},
-{n:"火雞肉",c:"肉類",p:206.0,pr:21.1,k:141.0,cm:0},
-{n:"鴕鳥菲力肉排",c:"肉類",p:190.0,pr:22.8,k:105.0,cm:0},
-{n:"鴕鳥沙朗肉排",c:"肉類",p:222.0,pr:20.9,k:97.0,cm:0},
-{n:"鴕腱肉",c:"肉類",p:206.0,pr:18.7,k:107.0,cm:0},
-{n:"鴕腩肉",c:"肉類",p:167.0,pr:21.2,k:144.0,cm:0},
-{n:"山豬肉片",c:"肉類",p:103.0,pr:11.9,k:466.0,cm:0},
-{n:"虎皮蛙",c:"肉類",p:151.0,pr:21.1,k:94.0,cm:0},
-{n:"蛇肉",c:"肉類",p:157.0,pr:19.0,k:85.0,cm:0},
-{n:"雙髻鯊",c:"魚貝類",p:259.0,pr:27.4,k:117.0,cm:0},
-{n:"雙髻鯊腹肉",c:"魚貝類",p:211.0,pr:25.8,k:110.0,cm:0},
-{n:"鯊魚切片",c:"魚貝類",p:258.0,pr:24.8,k:106.0,cm:1},
-{n:"魟魚",c:"魚貝類",p:268.0,pr:24.8,k:106.0,cm:0},
-{n:"日本鰻鱺魚片(生)",c:"魚貝類",p:212.0,pr:18.1,k:254.0,cm:1},
-{n:"灰海鰻",c:"魚貝類",p:245.0,pr:20.5,k:97.0,cm:0},
-{n:"魩仔魚",c:"魚貝類",p:201.0,pr:11.1,k:56.0,cm:1},
-{n:"魩仔魚平均值(加工)",c:"魚貝類",p:406.0,pr:26.2,k:124.0,cm:0},
-{n:"魩仔魚(加工,大)",c:"魚貝類",p:199.0,pr:20.7,k:97.0,cm:0},
-{n:"魩仔魚(加工,小)",c:"魚貝類",p:613.0,pr:31.8,k:151.0,cm:0},
-{n:"魩仔魚(加工)",c:"魚貝類",p:433.0,pr:23.0,k:105.0,cm:0},
-{n:"鱙仔魚(加工)",c:"魚貝類",p:536.0,pr:21.0,k:101.0,cm:0},
-{n:"日本銀帶鯡(加工)",c:"魚貝類",p:529.0,pr:21.5,k:111.0,cm:0},
-{n:"日本銀帶鯡魚干(丁香魚脯)",c:"魚貝類",p:1606.0,pr:51.8,k:275.0,cm:0},
-{n:"虱目魚平均值(去皮)",c:"魚貝類",p:199.0,pr:21.8,k:179.0,cm:1},
-{n:"草魚切片",c:"魚貝類",p:180.0,pr:21.4,k:166.0,cm:1},
-{n:"香魚",c:"魚貝類",p:191.0,pr:18.5,k:147.0,cm:1},
-{n:"銀魚",c:"魚貝類",p:217.0,pr:14.3,k:69.0,cm:1},
-{n:"白肉鮭魚切片",c:"魚貝類",p:239.0,pr:22.6,k:151.0,cm:1},
-{n:"斑帶石斑魚",c:"魚貝類",p:146.0,pr:20.2,k:90.0,cm:0},
-{n:"龍虎石斑魚",c:"魚貝類",p:193.0,pr:20.6,k:122.0,cm:0},
-{n:"海鱺",c:"魚貝類",p:227.0,pr:20.4,k:106.0,cm:0},
-{n:"真鯛平均值(去皮)",c:"魚貝類",p:243.0,pr:20.6,k:110.0,cm:1},
-{n:"台灣鯛魚片(生)",c:"魚貝類",p:166.0,pr:18.2,k:110.0,cm:1},
-{n:"鮪魚生魚片",c:"魚貝類",p:229.0,pr:23.3,k:100.0,cm:1},
-{n:"鯖魚(生)",c:"魚貝類",p:160.0,pr:14.4,k:417.0,cm:1},
-{n:"鯖魚(炒)",c:"魚貝類",p:213.0,pr:16.7,k:410.0,cm:0},
-{n:"鯖魚(炸)",c:"魚貝類",p:262.0,pr:17.2,k:555.0,cm:0},
-{n:"鯖魚(烤,150度,10分)",c:"魚貝類",p:219.0,pr:16.5,k:412.0,cm:0},
-{n:"旗魚切片",c:"魚貝類",p:233.0,pr:26.0,k:111.0,cm:1},
-{n:"旗魚腹肉",c:"魚貝類",p:192.0,pr:22.2,k:105.0,cm:0},
-{n:"秋刀魚",c:"魚貝類",p:182.0,pr:18.8,k:277.0,cm:0},
-{n:"魚漿(旗魚)",c:"魚貝類",p:203.0,pr:16.8,k:110.0,cm:0},
-{n:"鮸魚卵(加工)",c:"魚貝類",p:344.0,pr:21.9,k:184.0,cm:0},
-{n:"扁魚干",c:"魚貝類",p:1798.0,pr:66.3,k:354.0,cm:0},
-{n:"柴魚片",c:"魚貝類",p:712.0,pr:76.5,k:383.0,cm:0},
-{n:"正櫻蝦乾",c:"魚貝類",p:1262.0,pr:52.6,k:253.0,cm:0},
-{n:"大頭蝦仁",c:"魚貝類",p:398.0,pr:8.8,k:40.0,cm:0},
-{n:"明蝦仁",c:"魚貝類",p:183.0,pr:11.9,k:52.0,cm:0},
-{n:"紅蝦仁",c:"魚貝類",p:447.0,pr:9.5,k:43.0,cm:0},
-{n:"海鱸蝦仁",c:"魚貝類",p:189.0,pr:16.3,k:73.0,cm:0},
-{n:"草蝦仁",c:"魚貝類",p:295.0,pr:9.7,k:44.0,cm:0},
-{n:"鳳尾蝦仁",c:"魚貝類",p:96.0,pr:13.4,k:64.0,cm:0},
-{n:"鬚赤蝦仁",c:"魚貝類",p:163.0,pr:17.1,k:80.0,cm:0},
-{n:"蝦皮",c:"魚貝類",p:670.0,pr:33.6,k:155.0,cm:0},
-{n:"蝦米",c:"魚貝類",p:652.0,pr:57.1,k:264.0,cm:0},
-{n:"真牡蠣平均值",c:"魚貝類",p:128.0,pr:9.4,k:54.0,cm:0},
-{n:"真牡蠣",c:"魚貝類",p:108.0,pr:9.0,k:49.0,cm:0},
-{n:"大文蛤",c:"魚貝類",p:80.0,pr:4.4,k:21.0,cm:0},
-{n:"文蛤",c:"魚貝類",p:100.0,pr:7.6,k:37.0,cm:0},
-{n:"干貝(冷凍)",c:"魚貝類",p:686.0,pr:12.7,k:57.0,cm:0},
-{n:"牡蠣干",c:"魚貝類",p:273.0,pr:41.0,k:243.0,cm:0},
-{n:"真烏賊平均值",c:"魚貝類",p:95.0,pr:12.2,k:57.0,cm:0},
-{n:"真烏賊(大)",c:"魚貝類",p:143.0,pr:13.9,k:61.0,cm:0},
-{n:"真烏賊(小)",c:"魚貝類",p:47.0,pr:10.5,k:53.0,cm:0},
-{n:"雞蛋平均值",c:"蛋類",p:186.0,pr:12.7,k:135.0,cm:1},
-{n:"雞蛋(白殼)",c:"蛋類",p:181.0,pr:12.9,k:139.0,cm:0},
-{n:"雞蛋(黃殼)",c:"蛋類",p:191.0,pr:12.5,k:132.0,cm:0},
-{n:"土雞蛋",c:"蛋類",p:140.0,pr:12.9,k:129.0,cm:1},
-{n:"土雞蛋(2022年取樣)",c:"蛋類",p:210.0,pr:12.2,k:137.0,cm:0},
-{n:"烏骨雞蛋",c:"蛋類",p:216.0,pr:12.7,k:160.0,cm:1},
-{n:"初卵雞蛋",c:"蛋類",p:157.0,pr:12.3,k:136.0,cm:0},
-{n:"雞蛋白(白殼)",c:"蛋類",p:10.0,pr:10.7,k:48.0,cm:1},
-{n:"雞蛋白(黃殼)",c:"蛋類",p:19.0,pr:11.6,k:52.0,cm:0},
-{n:"烏骨雞蛋白",c:"蛋類",p:11.0,pr:10.6,k:47.0,cm:0},
-{n:"雞蛋黃平均值",c:"蛋類",p:569.0,pr:15.2,k:308.0,cm:1},
-{n:"茶葉蛋平均值",c:"蛋類",p:167.0,pr:13.7,k:145.0,cm:1},
-{n:"雞皮蛋平均值",c:"蛋類",p:172.0,pr:12.5,k:134.0,cm:0},
-{n:"雞皮蛋",c:"蛋類",p:183.0,pr:12.8,k:142.0,cm:0},
-{n:"土雞皮蛋",c:"蛋類",p:161.0,pr:12.2,k:127.0,cm:0},
-{n:"滷蛋平均值",c:"蛋類",p:230.0,pr:16.4,k:184.0,cm:1},
-{n:"雞滷蛋(浸泡隔夜)",c:"蛋類",p:237.0,pr:16.9,k:182.0,cm:0},
-{n:"滷蛋白平均值",c:"蛋類",p:60.0,pr:16.7,k:87.0,cm:0},
-{n:"滷蛋黃平均值",c:"蛋類",p:602.0,pr:17.0,k:379.0,cm:0},
-{n:"雞滷蛋黃(現煮)",c:"蛋類",p:598.0,pr:16.6,k:376.0,cm:0},
-{n:"雞滷蛋黃(浸泡隔夜)",c:"蛋類",p:606.0,pr:17.4,k:382.0,cm:0},
-{n:"雞鐵蛋",c:"蛋類",p:279.0,pr:26.6,k:288.0,cm:0},
-{n:"雞水波蛋",c:"蛋類",p:189.0,pr:11.6,k:147.0,cm:1},
-{n:"荷包蛋(不加油)",c:"蛋類",p:196.0,pr:14.0,k:162.0,cm:1},
-{n:"荷包蛋(加油1小匙)",c:"蛋類",p:207.0,pr:13.0,k:192.0,cm:0},
-{n:"煎蛋(不加油)",c:"蛋類",p:215.0,pr:13.5,k:161.0,cm:0},
-{n:"炒蛋(加油3大匙)",c:"蛋類",p:191.0,pr:12.9,k:215.0,cm:0},
-{n:"蒸蛋平均值",c:"蛋類",p:98.0,pr:5.3,k:64.0,cm:1},
-{n:"蒸蛋(市售)",c:"蛋類",p:111.0,pr:3.6,k:32.0,cm:0},
-{n:"蒸蛋(微波爐)",c:"蛋類",p:86.0,pr:6.4,k:82.0,cm:0},
-{n:"蒸蛋(電鍋)",c:"蛋類",p:97.0,pr:5.8,k:80.0,cm:0},
-{n:"鴨蛋",c:"蛋類",p:236.0,pr:13.1,k:187.0,cm:0},
-{n:"紅面番鴨蛋",c:"蛋類",p:249.0,pr:13.1,k:198.0,cm:0},
-{n:"鴨蛋白",c:"蛋類",p:8.0,pr:10.8,k:47.0,cm:0},
-{n:"鴨蛋黃",c:"蛋類",p:499.0,pr:15.8,k:347.0,cm:0},
-{n:"鴨皮蛋",c:"蛋類",p:183.0,pr:12.8,k:164.0,cm:0},
-{n:"鴨鹹蛋平均值",c:"蛋類",p:244.0,pr:13.3,k:185.0,cm:0},
-{n:"鴨生鹹蛋",c:"蛋類",p:235.0,pr:12.5,k:178.0,cm:0},
-{n:"鴨熟鹹蛋",c:"蛋類",p:217.0,pr:13.7,k:183.0,cm:0},
-{n:"鴨熟鹹蛋(薄鹽)",c:"蛋類",p:281.0,pr:13.7,k:194.0,cm:0},
-{n:"鴨鹹蛋黃",c:"蛋類",p:802.0,pr:23.6,k:528.0,cm:0},
-{n:"鵪鶉蛋",c:"蛋類",p:286.0,pr:12.7,k:172.0,cm:0},
-{n:"鴿蛋",c:"蛋類",p:135.0,pr:10.2,k:96.0,cm:0},
-{n:"鵝蛋",c:"蛋類",p:257.0,pr:10.0,k:179.0,cm:0},
-{n:"高脂鮮乳",c:"乳品類",p:96.0,pr:3.2,k:73.0,cm:1},
-{n:"全脂鮮乳平均值",c:"乳品類",p:83.0,pr:3.1,k:63.0,cm:1},
-{n:"低脂鮮乳",c:"乳品類",p:88.0,pr:3.3,k:43.0,cm:1},
-{n:"高脂保久乳",c:"乳品類",p:78.0,pr:3.1,k:71.0,cm:0},
-{n:"全脂保久乳",c:"乳品類",p:103.0,pr:3.0,k:62.0,cm:1},
-{n:"中脂保久乳",c:"乳品類",p:116.0,pr:3.2,k:48.0,cm:0},
-{n:"全脂奶粉",c:"乳品類",p:689.0,pr:26.4,k:504.0,cm:1},
-{n:"部份脫脂奶粉",c:"乳品類",p:932.0,pr:32.8,k:420.0,cm:0},
-{n:"部份脫脂奶粉(即溶)",c:"乳品類",p:741.0,pr:23.7,k:445.0,cm:0},
-{n:"部份脫脂低乳糖奶粉",c:"乳品類",p:202.0,pr:34.6,k:416.0,cm:0},
-{n:"脫脂奶粉",c:"乳品類",p:1040.0,pr:36.2,k:361.0,cm:1},
-{n:"脫脂奶粉(即溶)",c:"乳品類",p:946.0,pr:38.0,k:360.0,cm:0},
-{n:"脫脂強化奶粉(抗氧化)",c:"乳品類",p:857.0,pr:32.3,k:366.0,cm:0},
-{n:"脫脂強化奶粉(鈣&維生素A強化)",c:"乳品類",p:1334.0,pr:38.0,k:360.0,cm:0},
-{n:"脫脂強化奶粉(鈣&維生素C,E強化)",c:"乳品類",p:1047.0,pr:32.8,k:360.0,cm:0},
-{n:"脫脂強化奶粉(鈣&鐵強化)",c:"乳品類",p:695.0,pr:35.6,k:360.0,cm:0},
-{n:"部份脫脂調味奶粉(巧克力)",c:"乳品類",p:396.0,pr:14.1,k:406.0,cm:0},
-{n:"部份脫脂調味奶粉(果汁)",c:"乳品類",p:556.0,pr:19.8,k:435.0,cm:0},
-{n:"淡煉乳",c:"乳品類",p:230.0,pr:6.5,k:137.0,cm:0},
-{n:"加糖部份脫脂煉乳",c:"乳品類",p:206.0,pr:7.5,k:325.0,cm:1},
-{n:"切片乾酪",c:"乳品類",p:432.0,pr:18.3,k:309.0,cm:1},
-{n:"切片乾酪(低脂)",c:"乳品類",p:604.0,pr:21.7,k:241.0,cm:0},
-{n:"刨絲乾酪",c:"乳品類",p:524.0,pr:25.1,k:323.0,cm:0},
-{n:"乾酪粉",c:"乳品類",p:742.0,pr:40.4,k:480.0,cm:0},
-{n:"鮮奶可可",c:"乳品類",p:97.0,pr:2.1,k:80.0,cm:1},
-{n:"木瓜牛奶",c:"乳品類",p:25.0,pr:1.7,k:42.0,cm:0},
-{n:"高脂鮮羊乳",c:"乳品類",p:88.0,pr:3.4,k:65.0,cm:0},
-{n:"中脂鮮羊乳",c:"乳品類",p:64.0,pr:2.7,k:48.0,cm:0},
-{n:"保久羊乳",c:"乳品類",p:89.0,pr:3.0,k:59.0,cm:0},
-{n:"全脂羊奶粉",c:"乳品類",p:709.0,pr:26.7,k:510.0,cm:0},
-{n:"全脂羊奶粉(即溶)",c:"乳品類",p:714.0,pr:25.9,k:517.0,cm:0},
-{n:"美式咖啡(無糖)",c:"飲料類",p:4.0,pr:0.2,k:2.0,cm:1},
-{n:"無糖咖啡飲料",c:"飲料類",p:4.0,pr:0.2,k:4.0,cm:0},
-{n:"拿鐵咖啡(無糖)",c:"飲料類",p:81.0,pr:3.0,k:43.0,cm:1},
-{n:"咖啡(三合一)",c:"飲料類",p:21.0,pr:0.9,k:39.0,cm:1},
-{n:"即溶咖啡粉",c:"飲料類",p:311.0,pr:16.6,k:363.0,cm:0},
-{n:"咖啡沖泡包(二合一)",c:"飲料類",p:158.0,pr:6.8,k:491.0,cm:0},
-{n:"咖啡沖泡包(三合一)",c:"飲料類",p:188.0,pr:4.8,k:437.0,cm:1},
-{n:"紅茶沖泡包(檸檬)",c:"飲料類",p:3.0,pr:0,k:398.0,cm:0},
-{n:"薑茶沖泡包",c:"飲料類",p:11.0,pr:0.3,k:399.0,cm:0},
-{n:"抹茶粉",c:"飲料類",p:270.0,pr:23.4,k:361.0,cm:1},
-{n:"可可粉",c:"飲料類",p:780.0,pr:20.8,k:464.0,cm:1},
-{n:"小麥草粉",c:"飲料類",p:628.0,pr:34.0,k:370.0,cm:0},
-{n:"椰奶",c:"飲料類",p:8.0,pr:0.2,k:49.0,cm:1},
-{n:"八角",c:"調味料及香辛料類",p:112.0,pr:4.9,k:360.0,cm:0},
-{n:"小茴香粉",c:"調味料及香辛料類",p:537.0,pr:19.5,k:411.0,cm:0},
-{n:"山葵粉",c:"調味料及香辛料類",p:251.0,pr:10.1,k:387.0,cm:0},
-{n:"五香粉",c:"調味料及香辛料類",p:184.0,pr:8.7,k:363.0,cm:1},
-{n:"甘草粉",c:"調味料及香辛料類",p:64.0,pr:9.2,k:341.0,cm:0},
-{n:"肉桂粉",c:"調味料及香辛料類",p:48.0,pr:4.2,k:343.0,cm:1},
-{n:"西洋芹菜片",c:"調味料及香辛料類",p:455.0,pr:24.4,k:315.0,cm:0},
-{n:"花椒粉",c:"調味料及香辛料類",p:195.0,pr:10.0,k:369.0,cm:0},
-{n:"洋香菜片",c:"調味料及香辛料類",p:260.0,pr:24.4,k:312.0,cm:0},
-{n:"洋蔥粉",c:"調味料及香辛料類",p:299.0,pr:8.1,k:377.0,cm:0},
-{n:"白胡椒粉",c:"調味料及香辛料類",p:87.0,pr:3.7,k:342.0,cm:1},
-{n:"紅胡椒粒",c:"調味料及香辛料類",p:164.0,pr:5.9,k:376.0,cm:0},
-{n:"黑胡椒粉",c:"調味料及香辛料類",p:182.0,pr:11.6,k:372.0,cm:1},
-{n:"綠胡椒粒",c:"調味料及香辛料類",p:37.0,pr:11.3,k:379.0,cm:0},
-{n:"迷迭香粉",c:"調味料及香辛料類",p:47.0,pr:5.9,k:432.0,cm:0},
-{n:"荳蔻粉",c:"調味料及香辛料類",p:185.0,pr:6.7,k:448.0,cm:0},
-{n:"蒜粉",c:"調味料及香辛料類",p:472.0,pr:18.1,k:332.0,cm:1},
-{n:"辣椒粉",c:"調味料及香辛料類",p:384.0,pr:14.7,k:387.0,cm:1},
-{n:"薑黃粉",c:"調味料及香辛料類",p:364.0,pr:14.6,k:358.0,cm:0},
-{n:"薑粉",c:"調味料及香辛料類",p:178.0,pr:10.4,k:333.0,cm:1},
-{n:"羅勒片",c:"調味料及香辛料類",p:571.0,pr:23.3,k:289.0,cm:0},
-{n:"花椒粒",c:"調味料及香辛料類",p:199.0,pr:10.3,k:359.0,cm:0},
-{n:"七味唐辛子",c:"調味料及香辛料類",p:331.0,pr:15.8,k:463.0,cm:0},
-{n:"沙茶粉",c:"調味料及香辛料類",p:380.0,pr:15.0,k:507.0,cm:1},
-{n:"豆酥",c:"調味料及香辛料類",p:373.0,pr:30.1,k:540.0,cm:0},
-{n:"咖哩粉",c:"調味料及香辛料類",p:419.0,pr:13.9,k:417.0,cm:1},
-{n:"咖哩塊",c:"調味料及香辛料類",p:76.0,pr:5.6,k:515.0,cm:0},
-{n:"油蔥酥",c:"調味料及香辛料類",p:377.0,pr:7.4,k:518.0,cm:0},
-{n:"梅子粉",c:"調味料及香辛料類",p:25.0,pr:2.0,k:286.0,cm:0},
-{n:"椰子粉",c:"調味料及香辛料類",p:217.0,pr:7.2,k:629.0,cm:0},
-{n:"蒜頭酥",c:"調味料及香辛料類",p:264.0,pr:11.7,k:452.0,cm:0},
-{n:"糖粉",c:"調味料及香辛料類",p:0.0,pr:0.0,k:399.0,cm:0},
-{n:"椰漿",c:"調味料及香辛料類",p:56.0,pr:1.1,k:208.0,cm:0},
-{n:"黃耆水",c:"調味料及香辛料類",p:44.0,pr:0.9,k:14.0,cm:0},
-{n:"黃耆片",c:"調味料及香辛料類",p:352.0,pr:14.9,k:321.0,cm:0},
-{n:"陳皮",c:"調味料及香辛料類",p:63.0,pr:6.9,k:349.0,cm:0},
-{n:"山楂",c:"調味料及香辛料類",p:60.0,pr:1.9,k:345.0,cm:0},
-{n:"岩鹽",c:"調味料及香辛料類",p:0.0,pr:0.0,k:2.0,cm:0},
-{n:"低鈉鹽",c:"調味料及香辛料類",p:83.0,pr:0.0,k:11.0,cm:0},
-{n:"味精",c:"調味料及香辛料類",p:1.0,pr:44.5,k:251.0,cm:0},
-{n:"高鮮味精",c:"調味料及香辛料類",p:193.0,pr:45.0,k:269.0,cm:0},
-{n:"鮮雞精",c:"調味料及香辛料類",p:132.0,pr:10.8,k:267.0,cm:0},
-{n:"鰹魚粉",c:"調味料及香辛料類",p:268.0,pr:21.9,k:240.0,cm:0},
-{n:"高湯塊(排骨)",c:"調味料及香辛料類",p:120.0,pr:12.5,k:363.0,cm:0},
-{n:"高湯塊(雞肉)",c:"調味料及香辛料類",p:158.0,pr:14.7,k:340.0,cm:0},
-{n:"高湯(豬大骨)",c:"調味料及香辛料類",p:82.0,pr:4.2,k:49.0,cm:0},
-{n:"低脂高湯",c:"調味料及香辛料類",p:8.0,pr:0.3,k:2.0,cm:0},
-{n:"素食高湯",c:"調味料及香辛料類",p:20.0,pr:0.3,k:17.0,cm:0},
-{n:"米醋",c:"調味料及香辛料類",p:4.0,pr:0,k:10.0,cm:0},
-{n:"醬油",c:"調味料及香辛料類",p:123.0,pr:7.8,k:90.0,cm:0},
-{n:"薏仁醬油",c:"調味料及香辛料類",p:225.0,pr:9.3,k:83.0,cm:0},
-{n:"黑豆醬油",c:"調味料及香辛料類",p:95.0,pr:7.5,k:114.0,cm:0},
-{n:"淡色醬油",c:"調味料及香辛料類",p:131.0,pr:7.1,k:78.0,cm:0},
-{n:"薄鹽醬油(低鈉)",c:"調味料及香辛料類",p:137.0,pr:7.4,k:77.0,cm:0},
-{n:"薄鹽醬油(低鈉高鉀)",c:"調味料及香辛料類",p:158.0,pr:6.5,k:56.0,cm:0},
-{n:"醬油膏",c:"調味料及香辛料類",p:111.0,pr:6.8,k:103.0,cm:0},
-{n:"黑豆油膏",c:"調味料及香辛料類",p:83.0,pr:7.8,k:146.0,cm:0},
-{n:"薄鹽黑豆醬油膏",c:"調味料及香辛料類",p:123.0,pr:7.6,k:124.0,cm:0},
-{n:"味醂",c:"調味料及香辛料類",p:10.0,pr:0.5,k:220.0,cm:0},
-{n:"鮮味露",c:"調味料及香辛料類",p:23.0,pr:20.1,k:75.0,cm:0},
-{n:"蠔油",c:"調味料及香辛料類",p:30.0,pr:6.5,k:156.0,cm:0},
-{n:"魚露",c:"調味料及香辛料類",p:24.0,pr:10.2,k:64.0,cm:0},
-{n:"紅辣椒油",c:"調味料及香辛料類",p:1.0,pr:0.0,k:899.0,cm:0},
-{n:"蝦油",c:"調味料及香辛料類",p:9.0,pr:7.4,k:56.0,cm:0},
-{n:"干貝醬",c:"調味料及香辛料類",p:196.0,pr:16.7,k:558.0,cm:0},
-{n:"牛肉醬",c:"調味料及香辛料類",p:151.0,pr:17.0,k:507.0,cm:0},
-{n:"肉燥",c:"調味料及香辛料類",p:97.0,pr:9.5,k:397.0,cm:0},
-{n:"素肉燥",c:"調味料及香辛料類",p:89.0,pr:12.4,k:483.0,cm:0},
-{n:"義式乳酪醬",c:"調味料及香辛料類",p:307.0,pr:8.8,k:216.0,cm:0},
-{n:"炸醬",c:"調味料及香辛料類",p:189.0,pr:14.6,k:398.0,cm:0},
-{n:"素食炸醬",c:"調味料及香辛料類",p:181.0,pr:13.9,k:391.0,cm:0},
-{n:"海苔醬",c:"調味料及香辛料類",p:100.0,pr:6.4,k:223.0,cm:0},
-{n:"麻醬",c:"調味料及香辛料類",p:566.0,pr:20.8,k:643.0,cm:0},
-{n:"速食乾麵麻醬包",c:"調味料及香辛料類",p:361.0,pr:13.2,k:676.0,cm:0},
-{n:"白醬",c:"調味料及香辛料類",p:24.0,pr:1.2,k:61.0,cm:0},
-{n:"青醬",c:"調味料及香辛料類",p:14.0,pr:0.9,k:83.0,cm:0},
-{n:"蕃茄義大利麵醬",c:"調味料及香辛料類",p:24.0,pr:3.2,k:70.0,cm:1},
-{n:"五味醬",c:"調味料及香辛料類",p:21.0,pr:1.3,k:140.0,cm:0},
-{n:"牛排醬",c:"調味料及香辛料類",p:94.0,pr:2.5,k:130.0,cm:0},
-{n:"羊肉爐醬",c:"調味料及香辛料類",p:101.0,pr:7.3,k:130.0,cm:0},
-{n:"沙茶醬",c:"調味料及香辛料類",p:282.0,pr:10.2,k:729.0,cm:0},
-{n:"素沙茶醬",c:"調味料及香辛料類",p:208.0,pr:7.6,k:670.0,cm:0},
-{n:"黃芥茉醬",c:"調味料及香辛料類",p:104.0,pr:4.1,k:74.0,cm:0},
-{n:"山葵醬",c:"調味料及香辛料類",p:70.0,pr:1.1,k:338.0,cm:0},
-{n:"金桔醬",c:"調味料及香辛料類",p:8.0,pr:0.5,k:84.0,cm:0},
-{n:"海鮮醬",c:"調味料及香辛料類",p:39.0,pr:1.8,k:228.0,cm:0},
-{n:"烤肉醬",c:"調味料及香辛料類",p:127.0,pr:5.2,k:157.0,cm:0},
-{n:"排骨醬",c:"調味料及香辛料類",p:51.0,pr:2.3,k:221.0,cm:0},
-{n:"甜辣醬",c:"調味料及香辛料類",p:17.0,pr:1.0,k:116.0,cm:0},
-{n:"甜麵醬",c:"調味料及香辛料類",p:99.0,pr:4.5,k:216.0,cm:1},
-{n:"朝鮮醬",c:"調味料及香辛料類",p:137.0,pr:1.6,k:106.0,cm:0},
-{n:"黑胡椒醬",c:"調味料及香辛料類",p:89.0,pr:2.5,k:117.0,cm:0},
-{n:"日式照燒醬",c:"調味料及香辛料類",p:43.0,pr:3.0,k:227.0,cm:0},
-{n:"蒜蓉醬",c:"調味料及香辛料類",p:82.0,pr:4.2,k:282.0,cm:0},
-{n:"辣蒜蓉醬",c:"調味料及香辛料類",p:53.0,pr:2.3,k:78.0,cm:0},
-{n:"辣椒醬",c:"調味料及香辛料類",p:83.0,pr:2.6,k:83.0,cm:0},
-{n:"蔥醬",c:"調味料及香辛料類",p:42.0,pr:2.2,k:149.0,cm:0},
-{n:"糖醋醬",c:"調味料及香辛料類",p:38.0,pr:1.9,k:131.0,cm:0},
-{n:"蕃茄醬",c:"調味料及香辛料類",p:49.0,pr:1.6,k:114.0,cm:0},
-{n:"薑蓉醬",c:"調味料及香辛料類",p:22.0,pr:1.0,k:65.0,cm:0},
-{n:"蘑菇醬",c:"調味料及香辛料類",p:22.0,pr:1.5,k:58.0,cm:0},
-{n:"米豆醬",c:"調味料及香辛料類",p:157.0,pr:7.4,k:128.0,cm:0},
-{n:"蒜味豆豉醬",c:"調味料及香辛料類",p:156.0,pr:9.5,k:270.0,cm:0},
-{n:"豆酥醬",c:"調味料及香辛料類",p:189.0,pr:12.2,k:671.0,cm:0},
-{n:"豆瓣醬",c:"調味料及香辛料類",p:231.0,pr:14.2,k:178.0,cm:0},
-{n:"辣豆瓣醬",c:"調味料及香辛料類",p:87.0,pr:4.5,k:100.0,cm:0},
-{n:"紅麴醬",c:"調味料及香辛料類",p:62.0,pr:4.6,k:163.0,cm:0},
-{n:"韭花醬",c:"調味料及香辛料類",p:38.0,pr:2.1,k:29.0,cm:0},
-{n:"香椿醬",c:"調味料及香辛料類",p:120.0,pr:8.1,k:507.0,cm:0},
-{n:"麻婆醬",c:"調味料及香辛料類",p:115.0,pr:2.9,k:190.0,cm:0},
-{n:"蝦醬",c:"調味料及香辛料類",p:442.0,pr:19.6,k:99.0,cm:0},
-{n:"沙拉醬",c:"調味料及香辛料類",p:34.0,pr:1.9,k:645.0,cm:0},
-{n:"千島沙拉醬",c:"調味料及香辛料類",p:21.0,pr:1.0,k:515.0,cm:0},
-{n:"和風沙拉醬",c:"調味料及香辛料類",p:50.0,pr:2.1,k:129.0,cm:0},
-{n:"凱撒沙拉醬",c:"調味料及香辛料類",p:54.0,pr:1.4,k:337.0,cm:0},
-{n:"味噌",c:"調味料及香辛料類",p:139.0,pr:10.6,k:215.0,cm:0},
-{n:"法式奶酥醬",c:"調味料及香辛料類",p:185.0,pr:6.7,k:596.0,cm:0},
-{n:"巧克力醬(液體)",c:"調味料及香辛料類",p:52.0,pr:2.0,k:277.0,cm:0},
-{n:"草莓果醬",c:"調味料及香辛料類",p:19.0,pr:0.4,k:272.0,cm:0},
-{n:"葡萄果醬",c:"調味料及香辛料類",p:35.0,pr:0.0,k:261.0,cm:0},
-{n:"柚子果醬",c:"調味料及香辛料類",p:7.0,pr:0.6,k:268.0,cm:0},
-{n:"桑葚果醬",c:"調味料及香辛料類",p:17.0,pr:0.9,k:227.0,cm:0},
-{n:"白芝麻麵包醬",c:"調味料及香辛料類",p:432.0,pr:20.0,k:685.0,cm:0},
-{n:"黑芝麻麵包醬",c:"調味料及香辛料類",p:347.0,pr:10.6,k:667.0,cm:0},
-{n:"花生醬",c:"調味料及香辛料類",p:378.0,pr:24.0,k:657.0,cm:0},
-{n:"麵包粉",c:"調味料及香辛料類",p:134.0,pr:14.4,k:370.0,cm:0},
-{n:"酵母粉",c:"調味料及香辛料類",p:1477.0,pr:46.3,k:347.0,cm:0},
-{n:"冷藏寧波年糕",c:"糕餅點心類",p:37.0,pr:3.9,k:220.0,cm:0},
-{n:"冷藏甜年糕",c:"糕餅點心類",p:18.0,pr:2.3,k:242.0,cm:0},
-{n:"冷藏廣式芋頭粿",c:"糕餅點心類",p:98.0,pr:2.1,k:109.0,cm:0},
-{n:"冷藏廣式蘿蔔糕",c:"糕餅點心類",p:28.0,pr:2.2,k:111.0,cm:0},
-{n:"包餡甜麻糬(紅豆)",c:"糕餅點心類",p:30.0,pr:10.0,k:329.0,cm:0},
-{n:"鹹麻糬",c:"糕餅點心類",p:72.0,pr:8.7,k:248.0,cm:0},
-{n:"芋仔餅",c:"糕餅點心類",p:58.0,pr:4.6,k:354.0,cm:0},
-{n:"月餅(棗泥)",c:"糕餅點心類",p:128.0,pr:6.0,k:419.0,cm:1},
-{n:"綠豆凸",c:"糕餅點心類",p:110.0,pr:6.9,k:394.0,cm:0},
-{n:"蕃薯餅",c:"糕餅點心類",p:52.0,pr:3.9,k:331.0,cm:0},
-{n:"車輪餅(紅豆)",c:"糕餅點心類",p:147.0,pr:2.1,k:187.0,cm:0},
-{n:"車輪餅(菜脯)",c:"糕餅點心類",p:126.0,pr:1.4,k:183.0,cm:0},
-{n:"太陽餅",c:"糕餅點心類",p:73.0,pr:5.3,k:460.0,cm:1},
-{n:"牛舌餅",c:"糕餅點心類",p:51.0,pr:5.7,k:411.0,cm:1},
-{n:"蛋黃芋頭酥",c:"糕餅點心類",p:86.0,pr:3.1,k:217.0,cm:0},
-{n:"蛋黃酥",c:"糕餅點心類",p:354.0,pr:11.4,k:461.0,cm:1},
-{n:"鳳梨酥",c:"糕餅點心類",p:87.0,pr:4.2,k:484.0,cm:1},
-{n:"蘿蔔酥",c:"糕餅點心類",p:112.0,pr:7.5,k:427.0,cm:0},
-{n:"鳳眼糕",c:"糕餅點心類",p:11.0,pr:3.8,k:379.0,cm:0},
-{n:"米粩",c:"糕餅點心類",p:43.0,pr:2.6,k:442.0,cm:0},
-{n:"可頌",c:"糕餅點心類",p:107.0,pr:7.3,k:452.0,cm:1},
-{n:"泡芙(巧克力)",c:"糕餅點心類",p:252.0,pr:10.3,k:590.0,cm:1},
-{n:"蛋塔",c:"糕餅點心類",p:154.0,pr:4.1,k:376.0,cm:1},
-{n:"蛋塔(葡式)",c:"糕餅點心類",p:174.0,pr:3.7,k:375.0,cm:1},
-{n:"鬆餅",c:"糕餅點心類",p:212.0,pr:3.2,k:257.0,cm:1},
-{n:"冷凍馬拉糕",c:"糕餅點心類",p:129.0,pr:7.1,k:320.0,cm:0},
-{n:"銅鑼燒",c:"糕餅點心類",p:95.0,pr:3.4,k:332.0,cm:1},
-{n:"冷凍馬蹄條",c:"糕餅點心類",p:55.0,pr:4.2,k:194.0,cm:0},
-{n:"乳酪蛋糕",c:"糕餅點心類",p:139.0,pr:7.0,k:296.0,cm:1},
-{n:"海綿蛋糕(圓形)",c:"糕餅點心類",p:156.0,pr:5.1,k:344.0,cm:1},
-{n:"提拉米蘇(圓形)",c:"糕餅點心類",p:106.0,pr:4.4,k:328.0,cm:0},
-{n:"蜂蜜蛋糕(原味)",c:"糕餅點心類",p:130.0,pr:6.5,k:346.0,cm:0},
-{n:"蜂蜜蛋糕(巧克力)",c:"糕餅點心類",p:135.0,pr:6.9,k:341.0,cm:0},
-{n:"蜂蜜蛋糕(起司)",c:"糕餅點心類",p:130.0,pr:7.4,k:352.0,cm:0},
-{n:"黑森林蛋糕",c:"糕餅點心類",p:102.0,pr:4.2,k:277.0,cm:0},
-{n:"土司",c:"糕餅點心類",p:100.0,pr:9.5,k:289.0,cm:0},
-{n:"土司(含全穀粉)",c:"糕餅點心類",p:130.0,pr:10.0,k:292.0,cm:0},
-{n:"紅豆土司",c:"糕餅點心類",p:116.0,pr:9.2,k:319.0,cm:0},
-{n:"奶酥麵包",c:"糕餅點心類",p:83.0,pr:9.1,k:377.0,cm:1},
-{n:"肉鬆麵包",c:"糕餅點心類",p:240.0,pr:8.1,k:429.0,cm:1},
-{n:"蜜糖甜甜圈(波/摩堤)",c:"糕餅點心類",p:77.0,pr:2.0,k:396.0,cm:0},
-{n:"糖粒甜甜圈(油炸)",c:"糕餅點心類",p:112.0,pr:5.3,k:401.0,cm:0},
-{n:"菠蘿麵包",c:"糕餅點心類",p:132.0,pr:9.2,k:378.0,cm:1},
-{n:"葡萄乾奶酥麵包",c:"糕餅點心類",p:127.0,pr:8.4,k:306.0,cm:0},
-{n:"漢堡包",c:"糕餅點心類",p:143.0,pr:9.1,k:322.0,cm:0},
-{n:"餐包",c:"糕餅點心類",p:121.0,pr:7.2,k:365.0,cm:0},
-{n:"雙胞胎麵包",c:"糕餅點心類",p:67.0,pr:8.4,k:341.0,cm:0},
-{n:"仙草凍",c:"糕餅點心類",p:1.0,pr:0.9,k:19.0,cm:0},
-{n:"檸檬愛玉凍",c:"糕餅點心類",p:32.0,pr:0,k:53.0,cm:0},
-{n:"粉粿",c:"糕餅點心類",p:2.0,pr:0.0,k:65.0,cm:0},
-{n:"鮮奶布丁",c:"糕餅點心類",p:67.0,pr:3.0,k:110.0,cm:0},
-{n:"烤布丁",c:"糕餅點心類",p:117.0,pr:4.7,k:138.0,cm:0},
-{n:"豆花(花生)",c:"糕餅點心類",p:21.0,pr:2.0,k:60.0,cm:0},
-{n:"傳統豆花(未加糖)",c:"糕餅點心類",p:39.0,pr:3.2,k:39.0,cm:0},
-{n:"羊羹",c:"糕餅點心類",p:20.0,pr:3.0,k:289.0,cm:0},
-{n:"巧克力冰淇淋",c:"糕餅點心類",p:104.0,pr:4.2,k:192.0,cm:0},
-{n:"香草冰淇淋",c:"糕餅點心類",p:82.0,pr:2.5,k:182.0,cm:0},
-{n:"紅豆牛奶冰棒",c:"糕餅點心類",p:82.0,pr:3.5,k:155.0,cm:0},
-{n:"花生仁湯",c:"糕餅點心類",p:64.0,pr:2.8,k:108.0,cm:0},
-{n:"方塊酥",c:"糕餅點心類",p:66.0,pr:7.1,k:509.0,cm:0},
-{n:"夾心餅乾(草莓)",c:"糕餅點心類",p:87.0,pr:4.8,k:517.0,cm:0},
-{n:"捲心酥",c:"糕餅點心類",p:134.0,pr:6.1,k:490.0,cm:0},
-{n:"蛋捲(芝麻)",c:"糕餅點心類",p:163.0,pr:6.8,k:549.0,cm:0},
-{n:"煎餅",c:"糕餅點心類",p:115.0,pr:6.3,k:444.0,cm:0},
-{n:"營養口糧",c:"糕餅點心類",p:90.0,pr:6.8,k:424.0,cm:0},
-{n:"蘇打餅乾(蔬菜)",c:"糕餅點心類",p:93.0,pr:7.8,k:512.0,cm:0},
-{n:"玉米餅乾(原味)",c:"糕餅點心類",p:256.0,pr:7.6,k:504.0,cm:0},
-{n:"洋芋片",c:"糕餅點心類",p:137.0,pr:5.2,k:553.0,cm:0},
-{n:"魚酥",c:"糕餅點心類",p:241.0,pr:8.3,k:564.0,cm:0},
-{n:"零食泡麵",c:"糕餅點心類",p:105.0,pr:11.3,k:484.0,cm:1},
-{n:"雪餅",c:"糕餅點心類",p:46.0,pr:5.8,k:487.0,cm:0},
-{n:"沙其馬",c:"糕餅點心類",p:102.0,pr:5.6,k:487.0,cm:0},
-{n:"牛奶巧克力",c:"糕餅點心類",p:387.0,pr:9.4,k:546.0,cm:0},
-{n:"花生牛奶巧克力",c:"糕餅點心類",p:248.0,pr:13.0,k:489.0,cm:0},
-{n:"榛果牛奶巧克力",c:"糕餅點心類",p:204.0,pr:9.0,k:590.0,cm:0},
-{n:"糖衣牛奶巧克力",c:"糕餅點心類",p:148.0,pr:4.8,k:481.0,cm:0},
-{n:"白巧克力風味糖",c:"糕餅點心類",p:280.0,pr:8.6,k:562.0,cm:0},
-{n:"黑巧克力(85%)",c:"糕餅點心類",p:409.0,pr:10.9,k:613.0,cm:0},
-{n:"白芝麻糖",c:"糕餅點心類",p:209.0,pr:8.4,k:521.0,cm:0},
-{n:"黑芝麻糖",c:"糕餅點心類",p:472.0,pr:8.5,k:536.0,cm:0},
-{n:"花生糖",c:"糕餅點心類",p:308.0,pr:17.9,k:562.0,cm:0},
-{n:"花生貢糖",c:"糕餅點心類",p:368.0,pr:13.5,k:511.0,cm:0},
-{n:"牛軋糖",c:"糕餅點心類",p:173.0,pr:9.7,k:477.0,cm:0},
-{n:"核棗糕",c:"糕餅點心類",p:102.0,pr:2.5,k:425.0,cm:0},
-{n:"水果軟糖",c:"糕餅點心類",p:1.0,pr:1.3,k:411.0,cm:0},
-{n:"水果QQ軟糖",c:"糕餅點心類",p:7.0,pr:6.8,k:343.0,cm:0},
-{n:"牛奶軟糖",c:"糕餅點心類",p:51.0,pr:2.9,k:424.0,cm:0},
-{n:"巧克力牛奶軟糖",c:"糕餅點心類",p:68.0,pr:3.4,k:422.0,cm:0},
-{n:"太妃糖",c:"糕餅點心類",p:116.0,pr:2.7,k:438.0,cm:0},
-{n:"酵母菌咀嚼錠",c:"糕餅點心類",p:415.0,pr:23.6,k:391.0,cm:0},
-{n:"乳酸球",c:"糕餅點心類",p:158.0,pr:3.8,k:474.0,cm:0},
-{n:"羊乳片",c:"糕餅點心類",p:661.0,pr:23.4,k:410.0,cm:0},
-{n:"紅豆球",c:"糕餅點心類",p:103.0,pr:7.1,k:351.0,cm:0},
-{n:"綠豆球",c:"糕餅點心類",p:102.0,pr:6.2,k:346.0,cm:0},
-{n:"棉花糖",c:"糕餅點心類",p:6.0,pr:3.2,k:331.0,cm:0},
-{n:"甘薯蜜餞",c:"糕餅點心類",p:22.0,pr:0.9,k:347.0,cm:0},
-{n:"芒果青",c:"糕餅點心類",p:18.0,pr:0.6,k:223.0,cm:0},
-{n:"芭樂果乾",c:"糕餅點心類",p:14.0,pr:1.1,k:347.0,cm:0},
-{n:"鳳梨果乾",c:"糕餅點心類",p:16.0,pr:2.0,k:348.0,cm:0},
-{n:"檸檬果乾",c:"糕餅點心類",p:7.0,pr:0.8,k:344.0,cm:0},
-{n:"豆干丁(五香)",c:"糕餅點心類",p:542.0,pr:35.4,k:383.0,cm:0},
-{n:"豆干片(沙茶)",c:"糕餅點心類",p:263.0,pr:16.2,k:464.0,cm:0},
-{n:"布丁粉",c:"糕餅點心類",p:142.0,pr:2.7,k:419.0,cm:0},
-{n:"冰淇淋粉(香草)",c:"糕餅點心類",p:396.0,pr:15.9,k:430.0,cm:0},
-{n:"起酥片",c:"糕餅點心類",p:64.0,pr:6.7,k:404.0,cm:0},
-{n:"廣東粥",c:"加工調理食品及其他類",p:40.0,pr:4.9,k:81.0,cm:1},
-{n:"冷凍火腿炒飯",c:"加工調理食品及其他類",p:62.0,pr:5.0,k:189.0,cm:0},
-{n:"冷凍蝦仁炒飯",c:"加工調理食品及其他類",p:44.0,pr:4.7,k:148.0,cm:0},
-{n:"三角飯糰(肉鬆)",c:"加工調理食品及其他類",p:41.0,pr:5.8,k:219.0,cm:1},
-{n:"糯米飯糰",c:"加工調理食品及其他類",p:78.0,pr:5.9,k:335.0,cm:0},
-{n:"壽司(豆皮壽司)",c:"加工調理食品及其他類",p:61.0,pr:6.3,k:194.0,cm:0},
-{n:"肉粽",c:"加工調理食品及其他類",p:76.0,pr:8.2,k:235.0,cm:1},
-{n:"鹼粽",c:"加工調理食品及其他類",p:15.0,pr:2.1,k:131.0,cm:1},
-{n:"冷凍筒仔米糕",c:"加工調理食品及其他類",p:53.0,pr:6.5,k:212.0,cm:0},
-{n:"筒仔米糕",c:"加工調理食品及其他類",p:53.0,pr:6.6,k:246.0,cm:0},
-{n:"豬血糕",c:"加工調理食品及其他類",p:69.0,pr:8.6,k:194.0,cm:1},
-{n:"鴨血糕",c:"加工調理食品及其他類",p:66.0,pr:6.7,k:193.0,cm:0},
-{n:"肉圓",c:"加工調理食品及其他類",p:22.0,pr:3.1,k:136.0,cm:1},
-{n:"清蒸蝦仁肉圓",c:"加工調理食品及其他類",p:31.0,pr:4.6,k:152.0,cm:0},
-{n:"甜酒釀",c:"加工調理食品及其他類",p:29.0,pr:5.0,k:163.0,cm:0},
-{n:"紫米酒釀",c:"加工調理食品及其他類",p:45.0,pr:4.2,k:155.0,cm:0},
-{n:"冷凍芝麻湯圓",c:"加工調理食品及其他類",p:398.0,pr:4.8,k:352.0,cm:0},
-{n:"冷凍花生湯圓",c:"加工調理食品及其他類",p:279.0,pr:5.2,k:350.0,cm:1},
-{n:"冷凍豬肉湯圓",c:"加工調理食品及其他類",p:351.0,pr:6.5,k:281.0,cm:1},
-{n:"細米粉",c:"加工調理食品及其他類",p:153.0,pr:0.4,k:355.0,cm:1},
-{n:"濁水米粉",c:"加工調理食品及其他類",p:366.0,pr:5.3,k:357.0,cm:0},
-{n:"米粄條",c:"加工調理食品及其他類",p:59.0,pr:1.1,k:129.0,cm:0},
-{n:"米苔目",c:"加工調理食品及其他類",p:12.0,pr:0.6,k:121.0,cm:1},
-{n:"粿仔條",c:"加工調理食品及其他類",p:12.0,pr:0.5,k:193.0,cm:1},
-{n:"米漿(散裝)",c:"加工調理食品及其他類",p:11.0,pr:0.6,k:62.0,cm:1},
-{n:"保久米漿",c:"加工調理食品及其他類",p:31.0,pr:1.0,k:62.0,cm:1},
-{n:"糙米漿",c:"加工調理食品及其他類",p:24.0,pr:1.3,k:71.0,cm:0},
-{n:"糙秈米漿",c:"穀物類",p:24.0,pr:0.9,k:68.0,cm:0},
-{n:"糯米漿",c:"加工調理食品及其他類",p:9.0,pr:0.8,k:51.0,cm:0},
-{n:"黑糯米漿",c:"加工調理食品及其他類",p:6.0,pr:0.4,k:50.0,cm:0},
-{n:"米漿粉",c:"加工調理食品及其他類",p:121.0,pr:9.1,k:444.0,cm:0},
-{n:"燕麥奶",c:"加工調理食品及其他類",p:29.0,pr:1.0,k:44.0,cm:0},
-{n:"玉米粒罐頭",c:"加工調理食品及其他類",p:57.0,pr:2.3,k:90.0,cm:0},
-{n:"玉米醬罐頭",c:"加工調理食品及其他類",p:33.0,pr:1.4,k:66.0,cm:0},
-{n:"麵筋(未調味)",c:"加工調理食品及其他類",p:61.0,pr:42.5,k:643.0,cm:0},
-{n:"麵腸(未調味)",c:"加工調理食品及其他類",p:77.0,pr:20.6,k:138.0,cm:0},
-{n:"水餃皮",c:"加工調理食品及其他類",p:52.0,pr:7.8,k:264.0,cm:0},
-{n:"春捲皮",c:"加工調理食品及其他類",p:65.0,pr:8.3,k:241.0,cm:0},
-{n:"餛飩皮",c:"加工調理食品及其他類",p:61.0,pr:8.3,k:271.0,cm:0},
-{n:"長麵線",c:"加工調理食品及其他類",p:92.0,pr:10.7,k:310.0,cm:0},
-{n:"紅麵線",c:"加工調理食品及其他類",p:170.0,pr:11.3,k:307.0,cm:0},
-{n:"麵線",c:"加工調理食品及其他類",p:89.0,pr:11.7,k:350.0,cm:0},
-{n:"雞絲麵",c:"加工調理食品及其他類",p:136.0,pr:9.4,k:463.0,cm:0},
-{n:"乾麵條",c:"加工調理食品及其他類",p:91.0,pr:11.6,k:350.0,cm:0},
-{n:"油麵條",c:"加工調理食品及其他類",p:83.0,pr:11.4,k:361.0,cm:0},
-{n:"紅蘿蔔麵",c:"加工調理食品及其他類",p:117.0,pr:12.1,k:352.0,cm:0},
-{n:"通心麵",c:"加工調理食品及其他類",p:136.0,pr:13.8,k:359.0,cm:0},
-{n:"菠菜麵",c:"加工調理食品及其他類",p:115.0,pr:11.8,k:356.0,cm:0},
-{n:"鍋燒意麵",c:"加工調理食品及其他類",p:125.0,pr:10.0,k:479.0,cm:0},
-{n:"雞蛋麵",c:"加工調理食品及其他類",p:127.0,pr:12.5,k:358.0,cm:0},
-{n:"刀削麵",c:"加工調理食品及其他類",p:231.0,pr:8.4,k:267.0,cm:0},
-{n:"拉麵",c:"加工調理食品及其他類",p:106.0,pr:9.1,k:292.0,cm:0},
-{n:"意麵",c:"加工調理食品及其他類",p:156.0,pr:10.1,k:290.0,cm:0},
-{n:"衛生油麵",c:"加工調理食品及其他類",p:49.0,pr:5.5,k:163.0,cm:0},
-{n:"金門黃麵",c:"加工調理食品及其他類",p:43.0,pr:6.4,k:158.0,cm:0},
-{n:"冷凍烏龍麵",c:"加工調理食品及其他類",p:20.0,pr:3.4,k:129.0,cm:0},
-{n:"鍋燒麵",c:"加工調理食品及其他類",p:32.0,pr:4.5,k:120.0,cm:0},
-{n:"蕎麥麵(乾)",c:"加工調理食品及其他類",p:189.0,pr:12.7,k:349.0,cm:0},
-{n:"蕎麥麵(濕)",c:"加工調理食品及其他類",p:86.0,pr:6.3,k:153.0,cm:0},
-{n:"炒板條",c:"加工調理食品及其他類",p:39.0,pr:4.2,k:149.0,cm:0},
-{n:"泡麵(牛肉口味)",c:"加工調理食品及其他類",p:115.0,pr:9.6,k:473.0,cm:0},
-{n:"泡麵(鮮蝦口味)",c:"加工調理食品及其他類",p:109.0,pr:9.6,k:475.0,cm:0},
-{n:"擔仔麵",c:"加工調理食品及其他類",p:31.0,pr:4.4,k:124.0,cm:0},
-{n:"冷凍牛肉水餃",c:"加工調理食品及其他類",p:78.0,pr:8.9,k:215.0,cm:0},
-{n:"冷凍豬肉水餃",c:"加工調理食品及其他類",p:73.0,pr:8.1,k:208.0,cm:0},
-{n:"冷凍豬肉韭菜水餃",c:"加工調理食品及其他類",p:70.0,pr:8.4,k:229.0,cm:0},
-{n:"冷凍豬肉蟹黃水餃",c:"加工調理食品及其他類",p:135.0,pr:7.8,k:223.0,cm:0},
-{n:"冷凍香菇雞肉水餃",c:"加工調理食品及其他類",p:83.0,pr:9.5,k:221.0,cm:0},
-{n:"冷凍素食水餃",c:"加工調理食品及其他類",p:232.0,pr:8.7,k:175.0,cm:0},
-{n:"冷凍鮪魚水餃",c:"加工調理食品及其他類",p:102.0,pr:9.0,k:196.0,cm:0},
-{n:"冷凍豬肉熟水餃",c:"加工調理食品及其他類",p:101.0,pr:7.2,k:235.0,cm:0},
-{n:"冷凍素食熟水餃",c:"加工調理食品及其他類",p:68.0,pr:7.2,k:209.0,cm:0},
-{n:"冷凍冬菜蝦仁餛飩",c:"加工調理食品及其他類",p:90.0,pr:9.1,k:191.0,cm:0},
-{n:"冷凍豬肉餛飩",c:"加工調理食品及其他類",p:94.0,pr:11.1,k:240.0,cm:0},
-{n:"冷凍菜肉餛飩",c:"加工調理食品及其他類",p:87.0,pr:9.1,k:236.0,cm:0},
-{n:"溫州餛飩",c:"加工調理食品及其他類",p:46.0,pr:6.5,k:145.0,cm:0},
-{n:"豬肉鍋貼",c:"加工調理食品及其他類",p:61.0,pr:7.8,k:238.0,cm:0},
-{n:"熟水餃(高麗菜水餃)",c:"加工調理食品及其他類",p:74.0,pr:7.4,k:199.0,cm:0},
-{n:"冷凍叉燒包",c:"加工調理食品及其他類",p:165.0,pr:8.8,k:266.0,cm:0},
-{n:"冷凍酸菜焢肉包子",c:"加工調理食品及其他類",p:90.0,pr:8.6,k:301.0,cm:0},
-{n:"冷凍芋泥包",c:"加工調理食品及其他類",p:223.0,pr:6.6,k:263.0,cm:0},
-{n:"冷凍豆沙包",c:"加工調理食品及其他類",p:264.0,pr:7.4,k:247.0,cm:0},
-{n:"冷凍芝麻包",c:"加工調理食品及其他類",p:321.0,pr:7.2,k:341.0,cm:0},
-{n:"冷凍蓮蓉包",c:"加工調理食品及其他類",p:142.0,pr:7.9,k:292.0,cm:0},
-{n:"冷凍叉燒包子",c:"加工調理食品及其他類",p:101.0,pr:7.1,k:267.0,cm:0},
-{n:"冷凍牛肉包子",c:"加工調理食品及其他類",p:123.0,pr:10.8,k:269.0,cm:0},
-{n:"冷凍豬肉包子",c:"加工調理食品及其他類",p:198.0,pr:7.6,k:266.0,cm:0},
-{n:"冷凍豬肉湯包",c:"加工調理食品及其他類",p:118.0,pr:10.1,k:235.0,cm:0},
-{n:"小籠包",c:"加工調理食品及其他類",p:85.0,pr:9.6,k:242.0,cm:0},
-{n:"冷凍素菜包子",c:"加工調理食品及其他類",p:304.0,pr:8.6,k:234.0,cm:0},
-{n:"竹筍包",c:"加工調理食品及其他類",p:36.0,pr:6.9,k:209.0,cm:0},
-{n:"冷凍白饅頭",c:"加工調理食品及其他類",p:69.0,pr:7.4,k:279.0,cm:0},
-{n:"白饅頭",c:"加工調理食品及其他類",p:58.0,pr:8.1,k:248.0,cm:0},
-{n:"芋頭饅頭",c:"加工調理食品及其他類",p:55.0,pr:5.7,k:155.0,cm:0},
-{n:"花捲",c:"加工調理食品及其他類",p:51.0,pr:5.7,k:227.0,cm:0},
-{n:"冷藏堅果饅頭",c:"加工調理食品及其他類",p:179.0,pr:9.6,k:307.0,cm:0},
-{n:"黑糖饅頭",c:"加工調理食品及其他類",p:53.0,pr:6.8,k:235.0,cm:0},
-{n:"冷凍銀絲卷(奶黃)",c:"加工調理食品及其他類",p:81.0,pr:8.9,k:283.0,cm:0},
-{n:"火腿蛋三明治",c:"加工調理食品及其他類",p:139.0,pr:10.9,k:275.0,cm:0},
-{n:"披薩(夏威夷)",c:"加工調理食品及其他類",p:122.0,pr:12.0,k:270.0,cm:0},
-{n:"冷凍披薩(黑胡椒火腿)",c:"加工調理食品及其他類",p:253.0,pr:9.3,k:210.0,cm:0},
-{n:"蔥油餅",c:"加工調理食品及其他類",p:41.0,pr:8.3,k:305.0,cm:0},
-{n:"冷凍蔥油餅",c:"加工調理食品及其他類",p:91.0,pr:9.1,k:258.0,cm:0},
-{n:"冷凍蛋餅皮",c:"加工調理食品及其他類",p:57.0,pr:5.7,k:231.0,cm:0},
-{n:"燒餅",c:"加工調理食品及其他類",p:65.0,pr:9.1,k:323.0,cm:0},
-{n:"韭菜盒子",c:"加工調理食品及其他類",p:66.0,pr:7.5,k:217.0,cm:0},
-{n:"大餅包小餅(紅豆)",c:"加工調理食品及其他類",p:64.0,pr:8.3,k:376.0,cm:0},
-{n:"水煎包",c:"加工調理食品及其他類",p:48.0,pr:4.3,k:166.0,cm:0},
-{n:"牛肉餡餅",c:"加工調理食品及其他類",p:66.0,pr:9.6,k:225.0,cm:0},
-{n:"豬肉餡餅",c:"加工調理食品及其他類",p:60.0,pr:6.2,k:327.0,cm:0},
-{n:"冷凍燒賣",c:"加工調理食品及其他類",p:296.0,pr:9.9,k:188.0,cm:0},
-{n:"冷凍水晶包",c:"加工調理食品及其他類",p:55.0,pr:4.8,k:211.0,cm:0},
-{n:"冷凍,水晶餃",c:"加工調理食品及其他類",p:36.0,pr:2.8,k:190.0,cm:0},
-{n:"油條",c:"加工調理食品及其他類",p:93.0,pr:10.1,k:551.0,cm:0},
-{n:"冷凍春捲",c:"加工調理食品及其他類",p:57.0,pr:5.1,k:272.0,cm:0},
-{n:"蚵仔煎",c:"加工調理食品及其他類",p:91.0,pr:4.9,k:192.0,cm:0},
-{n:"棺材板",c:"加工調理食品及其他類",p:53.0,pr:7.0,k:264.0,cm:0},
-{n:"油豆腐粉絲(阿給)",c:"加工調理食品及其他類",p:132.0,pr:6.9,k:146.0,cm:0},
-{n:"冷凍可樂餅(奶汁)",c:"加工調理食品及其他類",p:72.0,pr:3.6,k:114.0,cm:0},
-{n:"芋圓",c:"加工調理食品及其他類",p:25.0,pr:0.9,k:214.0,cm:0},
-{n:"粉圓",c:"加工調理食品及其他類",p:5.0,pr:0.2,k:346.0,cm:0},
-{n:"冷凍甘薯條",c:"加工調理食品及其他類",p:45.0,pr:1.8,k:182.0,cm:0},
-{n:"冷凍馬鈴薯條",c:"加工調理食品及其他類",p:65.0,pr:2.2,k:151.0,cm:0},
-{n:"西谷米",c:"加工調理食品及其他類",p:8.0,pr:0.1,k:360.0,cm:0},
-{n:"台式泡菜",c:"加工調理食品及其他類",p:16.0,pr:0.9,k:59.0,cm:0},
-{n:"黃金泡菜",c:"加工調理食品及其他類",p:45.0,pr:2.4,k:111.0,cm:0},
-{n:"韓式泡菜",c:"加工調理食品及其他類",p:50.0,pr:2.0,k:35.0,cm:0},
-{n:"花瓜罐頭",c:"加工調理食品及其他類",p:46.0,pr:2.9,k:89.0,cm:0},
-{n:"冷凍洋蔥圈",c:"加工調理食品及其他類",p:128.0,pr:4.0,k:281.0,cm:0},
-{n:"醃辣椒",c:"加工調理食品及其他類",p:36.0,pr:1.9,k:53.0,cm:0},
-{n:"桂竹筍片",c:"加工調理食品及其他類",p:11.0,pr:1.0,k:19.0,cm:0},
-{n:"薤",c:"加工調理食品及其他類",p:33.0,pr:0.5,k:11.0,cm:0},
-{n:"甘藍乾",c:"加工調理食品及其他類",p:143.0,pr:7.2,k:194.0,cm:0},
-{n:"酸甘藍菜",c:"加工調理食品及其他類",p:17.0,pr:1.4,k:24.0,cm:0},
-{n:"梅乾菜",c:"加工調理食品及其他類",p:70.0,pr:5.5,k:116.0,cm:0},
-{n:"榨菜",c:"加工調理食品及其他類",p:20.0,pr:1.3,k:27.0,cm:0},
-{n:"酸菜",c:"加工調理食品及其他類",p:20.0,pr:0.8,k:19.0,cm:0},
-{n:"冬粉",c:"加工調理食品及其他類",p:43.0,pr:0.1,k:351.0,cm:0},
-{n:"寬粉",c:"加工調理食品及其他類",p:72.0,pr:0.1,k:349.0,cm:0},
-{n:"佃煮黑豆",c:"加工調理食品及其他類",p:107.0,pr:10.5,k:271.0,cm:0},
-{n:"豆干絲",c:"加工調理食品及其他類",p:277.0,pr:18.3,k:170.0,cm:0},
-{n:"五香豆干",c:"加工調理食品及其他類",p:291.0,pr:19.3,k:197.0,cm:0},
-{n:"小方豆干",c:"加工調理食品及其他類",p:247.0,pr:17.4,k:161.0,cm:0},
-{n:"黑豆干",c:"加工調理食品及其他類",p:306.0,pr:19.0,k:197.0,cm:0},
-{n:"豆腐皮",c:"加工調理食品及其他類",p:391.0,pr:25.3,k:209.0,cm:0},
-{n:"日式炸豆皮",c:"加工調理食品及其他類",p:368.0,pr:19.2,k:388.0,cm:0},
-{n:"豆豉",c:"加工調理食品及其他類",p:206.0,pr:20.4,k:237.0,cm:0},
-{n:"豆棗",c:"加工調理食品及其他類",p:203.0,pr:11.7,k:420.0,cm:0},
-{n:"百頁豆腐",c:"加工調理食品及其他類",p:123.0,pr:13.4,k:196.0,cm:0},
-{n:"傳統豆腐",c:"加工調理食品及其他類",p:111.0,pr:8.5,k:88.0,cm:0},
-{n:"傳統豆腐(2022年取樣)",c:"加工調理食品及其他類",p:117.0,pr:9.6,k:96.0,cm:0},
-{n:"冷凍豆腐",c:"加工調理食品及其他類",p:219.0,pr:12.9,k:131.0,cm:0},
-{n:"小三角油豆腐",c:"加工調理食品及其他類",p:218.0,pr:12.7,k:160.0,cm:0},
-{n:"嫩豆腐",c:"加工調理食品及其他類",p:73.0,pr:4.9,k:53.0,cm:0},
-{n:"雞蛋豆腐",c:"加工調理食品及其他類",p:1040.0,pr:6.9,k:79.0,cm:0},
-{n:"麻油辣腐乳",c:"加工調理食品及其他類",p:138.0,pr:9.0,k:107.0,cm:0},
-{n:"素肉",c:"加工調理食品及其他類",p:163.0,pr:23.9,k:210.0,cm:0},
-{n:"冷凍素雞塊",c:"加工調理食品及其他類",p:146.0,pr:14.2,k:206.0,cm:0},
-{n:"花生麵筋罐頭",c:"加工調理食品及其他類",p:59.0,pr:11.0,k:206.0,cm:0},
-{n:"香菇麵筋罐頭",c:"加工調理食品及其他類",p:64.0,pr:10.7,k:192.0,cm:0},
-{n:"花豆罐頭(糖漬)",c:"加工調理食品及其他類",p:122.0,pr:7.6,k:204.0,cm:0},
-{n:"紅豆罐頭(糖漬)",c:"加工調理食品及其他類",p:120.0,pr:8.0,k:233.0,cm:0},
-{n:"甘納豆",c:"加工調理食品及其他類",p:122.0,pr:6.6,k:333.0,cm:0},
-{n:"豌豆仁罐頭",c:"加工調理食品及其他類",p:225.0,pr:7.2,k:126.0,cm:0},
-{n:"鹽酥蠶豆",c:"加工調理食品及其他類",p:364.0,pr:26.9,k:481.0,cm:0},
-{n:"豆漿",c:"加工調理食品及其他類",p:43.0,pr:3.2,k:60.0,cm:0},
-{n:"雞蛋豆漿",c:"加工調理食品及其他類",p:20.0,pr:1.9,k:56.0,cm:0},
-{n:"鹹豆漿",c:"加工調理食品及其他類",p:56.0,pr:3.5,k:37.0,cm:0},
-{n:"豆漿優酪乳",c:"加工調理食品及其他類",p:25.0,pr:2.0,k:70.0,cm:0},
-{n:"DHA豆奶",c:"加工調理食品及其他類",p:52.0,pr:1.7,k:44.0,cm:0},
-{n:"豆漿粉",c:"加工調理食品及其他類",p:598.0,pr:37.4,k:434.0,cm:0},
-{n:"叉燒肉",c:"加工調理食品及其他類",p:185.0,pr:17.2,k:253.0,cm:0},
-{n:"切片火腿(牛肉)",c:"加工調理食品及其他類",p:268.0,pr:15.9,k:121.0,cm:0},
-{n:"切片火腿(豬肉)",c:"加工調理食品及其他類",p:344.0,pr:16.5,k:147.0,cm:0},
-{n:"切片火腿(雞肉)",c:"加工調理食品及其他類",p:264.0,pr:15.3,k:148.0,cm:0},
-{n:"條狀火腿(牛肉,黑胡椒)",c:"加工調理食品及其他類",p:350.0,pr:18.9,k:113.0,cm:0},
-{n:"條狀火腿(豬肉)",c:"加工調理食品及其他類",p:222.0,pr:16.2,k:145.0,cm:0},
-{n:"醬肘子",c:"加工調理食品及其他類",p:149.0,pr:19.0,k:134.0,cm:0},
-{n:"培根",c:"加工調理食品及其他類",p:214.0,pr:13.5,k:372.0,cm:0},
-{n:"臘肉(五花肉)",c:"加工調理食品及其他類",p:315.0,pr:18.5,k:525.0,cm:0},
-{n:"臘肉(腿肉)",c:"加工調理食品及其他類",p:197.0,pr:26.7,k:377.0,cm:0},
-{n:"滷牛筋",c:"加工調理食品及其他類",p:22.0,pr:21.1,k:119.0,cm:0},
-{n:"滷豬腳",c:"加工調理食品及其他類",p:146.0,pr:28.4,k:237.0,cm:0},
-{n:"醃燻豬肝",c:"加工調理食品及其他類",p:557.0,pr:26.8,k:167.0,cm:0},
-{n:"膽肝",c:"加工調理食品及其他類",p:318.0,pr:31.2,k:252.0,cm:0},
-{n:"片狀肉乾(牛肉)",c:"加工調理食品及其他類",p:267.0,pr:30.3,k:335.0,cm:0},
-{n:"片狀肉乾(牛肉,辣味)",c:"加工調理食品及其他類",p:315.0,pr:38.0,k:335.0,cm:0},
-{n:"片狀肉乾(豬肉)",c:"加工調理食品及其他類",p:331.0,pr:30.0,k:329.0,cm:0},
-{n:"條狀肉乾(豬肉)",c:"加工調理食品及其他類",p:474.0,pr:43.2,k:345.0,cm:0},
-{n:"牛肉香腸",c:"加工調理食品及其他類",p:194.0,pr:20.7,k:298.0,cm:0},
-{n:"香腸",c:"加工調理食品及其他類",p:152.0,pr:17.0,k:354.0,cm:0},
-{n:"熱狗",c:"加工調理食品及其他類",p:164.0,pr:13.3,k:257.0,cm:0},
-{n:"德國香腸",c:"加工調理食品及其他類",p:211.0,pr:15.9,k:275.0,cm:0},
-{n:"冷凍小香腸",c:"加工調理食品及其他類",p:247.0,pr:14.8,k:249.0,cm:0},
-{n:"冷凍珍珠丸",c:"加工調理食品及其他類",p:115.0,pr:9.5,k:225.0,cm:0},
-{n:"冷凍貢丸",c:"加工調理食品及其他類",p:190.0,pr:16.6,k:244.0,cm:0},
-{n:"冷凍雞肉丸",c:"加工調理食品及其他類",p:153.0,pr:10.5,k:202.0,cm:0},
-{n:"冷凍牛肉漢堡肉",c:"加工調理食品及其他類",p:135.0,pr:14.4,k:249.0,cm:0},
-{n:"冷凍雞塊",c:"加工調理食品及其他類",p:102.0,pr:15.3,k:228.0,cm:0},
-{n:"豬肉脯",c:"加工調理食品及其他類",p:269.0,pr:33.4,k:441.0,cm:0},
-{n:"豬肉酥",c:"加工調理食品及其他類",p:281.0,pr:33.0,k:513.0,cm:0},
-{n:"雞肉酥",c:"加工調理食品及其他類",p:219.0,pr:26.7,k:451.0,cm:0},
-{n:"肉羹",c:"加工調理食品及其他類",p:198.0,pr:9.7,k:247.0,cm:0},
-{n:"冷凍咕咾肉",c:"加工調理食品及其他類",p:71.0,pr:6.4,k:184.0,cm:0},
-{n:"豬腳凍",c:"加工調理食品及其他類",p:35.0,pr:16.6,k:145.0,cm:0},
-{n:"冷凍花枝丸",c:"加工調理食品及其他類",p:181.0,pr:12.7,k:166.0,cm:0},
-{n:"冷凍虱目魚丸",c:"加工調理食品及其他類",p:179.0,pr:13.7,k:206.0,cm:0},
-{n:"冷凍文蛤丸",c:"加工調理食品及其他類",p:165.0,pr:16.2,k:211.0,cm:0},
-{n:"冷凍旗魚丸",c:"加工調理食品及其他類",p:129.0,pr:12.8,k:160.0,cm:0},
-{n:"冷凍鱈魚丸",c:"加工調理食品及其他類",p:228.0,pr:8.5,k:99.0,cm:0},
-{n:"冷凍蝦丸",c:"加工調理食品及其他類",p:159.0,pr:10.8,k:123.0,cm:0},
-{n:"冷凍花枝排",c:"加工調理食品及其他類",p:163.0,pr:5.5,k:187.0,cm:0},
-{n:"冷凍鮪排",c:"加工調理食品及其他類",p:366.0,pr:13.4,k:143.0,cm:0},
-{n:"冷凍蝦餅",c:"加工調理食品及其他類",p:118.0,pr:9.6,k:127.0,cm:0},
-{n:"冷凍干貝酥",c:"加工調理食品及其他類",p:81.0,pr:8.3,k:146.0,cm:0},
-{n:"冷凍花枝塊",c:"加工調理食品及其他類",p:173.0,pr:11.3,k:180.0,cm:0},
-{n:"冷凍旗魚塊",c:"加工調理食品及其他類",p:222.0,pr:15.3,k:178.0,cm:0},
-{n:"冷凍蚵捲",c:"加工調理食品及其他類",p:128.0,pr:6.9,k:213.0,cm:0},
-{n:"冷凍魚捲",c:"加工調理食品及其他類",p:120.0,pr:13.8,k:126.0,cm:0},
-{n:"冷凍蝦捲",c:"加工調理食品及其他類",p:191.0,pr:10.3,k:156.0,cm:0},
-{n:"冷凍魷魚圈",c:"加工調理食品及其他類",p:451.0,pr:15.7,k:143.0,cm:0},
-{n:"冷凍花枝餃",c:"加工調理食品及其他類",p:40.0,pr:12.4,k:177.0,cm:0},
-{n:"冷凍香菇餃",c:"加工調理食品及其他類",p:155.0,pr:12.3,k:233.0,cm:0},
-{n:"冷凍蛋餃",c:"加工調理食品及其他類",p:173.0,pr:12.1,k:183.0,cm:0},
-{n:"冷凍雪螺餃",c:"加工調理食品及其他類",p:155.0,pr:11.6,k:204.0,cm:0},
-{n:"冷凍魚餃",c:"加工調理食品及其他類",p:122.0,pr:12.5,k:277.0,cm:0},
-{n:"冷凍蝦餃",c:"加工調理食品及其他類",p:107.0,pr:11.4,k:273.0,cm:0},
-{n:"冷凍燕餃",c:"加工調理食品及其他類",p:144.0,pr:12.8,k:321.0,cm:0},
-{n:"冷凍蟹味棒",c:"加工調理食品及其他類",p:285.0,pr:9.3,k:118.0,cm:0},
-{n:"冷凍魚卵卷",c:"加工調理食品及其他類",p:219.0,pr:12.9,k:115.0,cm:0},
-{n:"魚板",c:"加工調理食品及其他類",p:44.0,pr:10.0,k:128.0,cm:0},
-{n:"天婦羅",c:"加工調理食品及其他類",p:110.0,pr:12.4,k:176.0,cm:0},
-{n:"冷凍花枝漿",c:"加工調理食品及其他類",p:143.0,pr:11.2,k:227.0,cm:0},
-{n:"冷凍花枝羹",c:"加工調理食品及其他類",p:211.0,pr:11.4,k:126.0,cm:0},
-{n:"魚肉脯",c:"加工調理食品及其他類",p:611.0,pr:21.9,k:104.0,cm:0},
-{n:"鯖魚肉脯",c:"加工調理食品及其他類",p:376.0,pr:33.8,k:685.0,cm:0},
-{n:"魚肉鬆",c:"加工調理食品及其他類",p:206.0,pr:28.2,k:470.0,cm:0},
-{n:"旗魚鬆",c:"加工調理食品及其他類",p:423.0,pr:31.3,k:481.0,cm:0},
-{n:"鮭魚鬆",c:"加工調理食品及其他類",p:377.0,pr:29.0,k:452.0,cm:0},
-{n:"香筍鮪魚罐頭",c:"加工調理食品及其他類",p:94.0,pr:10.0,k:261.0,cm:0},
-{n:"茄汁鯖魚罐頭",c:"加工調理食品及其他類",p:323.0,pr:17.6,k:116.0,cm:0},
-{n:"蒜味甘扁桃仁",c:"加工調理食品及其他類",p:511.0,pr:23.3,k:648.0,cm:0},
-{n:"杏仁霜",c:"加工調理食品及其他類",p:308.0,pr:9.7,k:554.0,cm:0},
-{n:"蜜汁松子仁",c:"加工調理食品及其他類",p:583.0,pr:14.9,k:697.0,cm:0},
-{n:"鹽酥夏威夷豆",c:"加工調理食品及其他類",p:188.0,pr:9.4,k:773.0,cm:0},
-{n:"甜核桃",c:"加工調理食品及其他類",p:458.0,pr:14.4,k:723.0,cm:0},
-{n:"糖炒栗子",c:"加工調理食品及其他類",p:118.0,pr:4.2,k:209.0,cm:0},
-{n:"蜜汁腰果",c:"加工調理食品及其他類",p:508.0,pr:17.6,k:600.0,cm:0},
-{n:"玉桂西瓜子",c:"加工調理食品及其他類",p:902.0,pr:31.1,k:529.0,cm:0},
-{n:"醬油西瓜子",c:"加工調理食品及其他類",p:1013.0,pr:29.5,k:547.0,cm:0},
-{n:"鹽酥帶殼花生(熟)",c:"加工調理食品及其他類",p:423.0,pr:28.2,k:568.0,cm:0},
-{n:"糖漬花生仁",c:"加工調理食品及其他類",p:214.0,pr:14.2,k:382.0,cm:0},
-{n:"油炸花生仁",c:"加工調理食品及其他類",p:445.0,pr:28.9,k:623.0,cm:0},
-{n:"蛋酥花生仁",c:"加工調理食品及其他類",p:348.0,pr:21.1,k:606.0,cm:0},
-{n:"鹽酥花生仁",c:"加工調理食品及其他類",p:498.0,pr:28.8,k:557.0,cm:0},
-{n:"調味南瓜子(去殼)",c:"加工調理食品及其他類",p:1335.0,pr:30.4,k:607.0,cm:0},
-{n:"調味南瓜子(帶殼)",c:"加工調理食品及其他類",p:1113.0,pr:25.9,k:607.0,cm:0},
-{n:"甘草葵瓜子(帶殼)",c:"加工調理食品及其他類",p:726.0,pr:26.8,k:564.0,cm:0},
-{n:"鹽酥葵瓜子(帶殼)",c:"加工調理食品及其他類",p:883.0,pr:25.9,k:619.0,cm:0},
-{n:"糖漬蓮子",c:"加工調理食品及其他類",p:200.0,pr:5.7,k:230.0,cm:0},
-{n:"烤雞",c:"加工調理食品及其他類",p:247.0,pr:22.8,k:233.0,cm:0},
-{n:"冷凍烤雞翅",c:"加工調理食品及其他類",p:208.0,pr:18.8,k:217.0,cm:0},
-{n:"鴨賞",c:"加工調理食品及其他類",p:223.0,pr:31.1,k:304.0,cm:0},
-{n:"茶鵝",c:"加工調理食品及其他類",p:99.0,pr:15.6,k:352.0,cm:0},
-{n:"熟鵝腿肉",c:"加工調理食品及其他類",p:495.0,pr:18.5,k:285.0,cm:0},
-{n:"鯊魚煙",c:"加工調理食品及其他類",p:128.0,pr:22.3,k:68.0,cm:0},
-{n:"日本鰻鱺魚片(蒲燒)",c:"加工調理食品及其他類",p:316.0,pr:25.0,k:272.0,cm:0},
-{n:"鹽漬小鱗脂眼鯡(鹹馧仔)",c:"加工調理食品及其他類",p:234.0,pr:17.4,k:224.0,cm:0},
-{n:"鯖魚(醃製)",c:"加工調理食品及其他類",p:485.0,pr:14.9,k:281.0,cm:0},
-{n:"鯖魚(醃製)(2022年取樣)",c:"加工調理食品及其他類",p:187.0,pr:17.0,k:296.0,cm:0},
-{n:"毛鱗魚(柳葉魚)(裹粉未炸)",c:"加工調理食品及其他類",p:208.0,pr:12.9,k:171.0,cm:0},
-{n:"油魚卵(加工)",c:"加工調理食品及其他類",p:1103.0,pr:46.6,k:416.0,cm:0},
-{n:"圓鱈魚卵(加工)",c:"加工調理食品及其他類",p:87.0,pr:11.2,k:84.0,cm:0},
-{n:"鹹小卷",c:"加工調理食品及其他類",p:505.0,pr:20.1,k:100.0,cm:0},
-{n:"沖泡濃湯(海鮮)",c:"加工調理食品及其他類",p:118.0,pr:11.2,k:355.0,cm:0},
-{n:"玉米濃湯調理包",c:"加工調理食品及其他類",p:145.0,pr:4.4,k:369.0,cm:0},
-{n:"麥片沖泡包(三合一)",c:"加工調理食品及其他類",p:524.0,pr:11.0,k:409.0,cm:0},
-{n:"三合一麥片(野菜蘑菇)",c:"加工調理食品及其他類",p:172.0,pr:6.8,k:399.0,cm:0},
-{n:"糙米麩",c:"加工調理食品及其他類",p:271.0,pr:7.8,k:387.0,cm:0},
-{n:"麵茶粉",c:"加工調理食品及其他類",p:78.0,pr:7.2,k:423.0,cm:0},
-{n:"植物燕麥奶粉(營養強化)",c:"加工調理食品及其他類",p:354.0,pr:12.0,k:437.0,cm:0},
-{n:"杏仁茶沖泡包",c:"加工調理食品及其他類",p:88.0,pr:3.5,k:399.0,cm:0},
-{n:"芝麻糊沖泡包",c:"加工調理食品及其他類",p:266.0,pr:9.3,k:458.0,cm:0},
-{n:"綜合堅果穀物沖泡包",c:"加工調理食品及其他類",p:391.0,pr:13.3,k:453.0,cm:0},
-{n:"生啤酒",c:"加工調理食品及其他類",p:28.0,pr:0.4,k:50.0,cm:0},
-{n:"啤酒",c:"加工調理食品及其他類",p:22.0,pr:0,k:49.0,cm:0},
-{n:"陳年紹興酒",c:"加工調理食品及其他類",p:31.0,pr:1.8,k:133.0,cm:0}
-];
+const KEY_NAME = 'phos_detector_gemini_key';
+let apiKey = null;
+let imgB64 = null;
+let imgMime = null;
 
-// 計算等級
-FOOD_DB.forEach((item, i) => {
-    item.id = i;
-    item.l = item.p < 100 ? 'low' : (item.p <= 250 ? 'mid' : 'high');
-    item.r = item.pr > 0 ? (item.p / item.pr).toFixed(1) : '--';
+function checkKey() {
+  const k = localStorage.getItem(KEY_NAME);
+  if (k && k.startsWith('AIza')) {
+    apiKey = k;
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } else {
+    document.getElementById('setup').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+  }
+}
+
+function saveKey() {
+  const v = document.getElementById('apikey-input').value.trim();
+  if (!v.startsWith('AIza')) {
+    alert('金鑰格式不正確，應以 AIza 開頭');
+    return;
+  }
+  localStorage.setItem(KEY_NAME, v);
+  apiKey = v;
+  checkKey();
+}
+
+function clearKey() {
+  if (confirm('確定要清除已儲存的 API 金鑰？')) {
+    localStorage.removeItem(KEY_NAME);
+    checkKey();
+  }
+}
+
+function setStage(s) {
+  ['upload','preview','loading','error','result'].forEach(x => {
+    document.getElementById('stage-' + x).style.display = x === s ? 'block' : 'none';
+  });
+}
+
+function reset() {
+  imgB64 = null;
+  imgMime = null;
+  document.getElementById('fi').value = '';
+  document.getElementById('stage-result').innerHTML = '';
+  ['s1','s2','s3','s4'].forEach(id => document.getElementById(id).className = 'step');
+  setStage('upload');
+}
+
+function handleFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    imgB64 = src.split(',')[1];
+    imgMime = file.type;
+    document.getElementById('pv-img').src = src;
+    setStage('preview');
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('fi').addEventListener('change', e => handleFile(e.target.files[0]));
+
+const up = document.getElementById('stage-upload');
+up.addEventListener('dragover', e => { e.preventDefault(); up.classList.add('drag'); });
+up.addEventListener('dragleave', () => up.classList.remove('drag'));
+up.addEventListener('drop', e => {
+  e.preventDefault();
+  up.classList.remove('drag');
+  handleFile(e.dataTransfer.files[0]);
 });
 
-/* ============================================================
-   衛教文章
-   ============================================================ */
-const ARTICLES = [
+async function animSteps() {
+  const ids = ['s1','s2','s3','s4'];
+  for (let i = 0; i < ids.length; i++) {
+    await new Promise(r => setTimeout(r, 600));
+    if (i > 0) document.getElementById(ids[i-1]).className = 'step done';
+    document.getElementById(ids[i]).className = 'step cur';
+  }
+}
+
+const PROMPT = `你是專精於血液透析患者飲食管理的腎臟科營養師。請分析這張餐點照片的磷含量風險。
+
+嚴格以下列JSON格式回應，不要包含任何markdown或其他文字：
+
+{
+  "overallRisk": "high | medium | low 三者之一",
+  "riskTitle": "10字內中文風險標題",
+  "riskSummary": "30字內整體摘要",
+  "estimatedPhosphorus": 估算總磷量數字（整數mg）,
+  "foods": [
     {
-        num: "CHAPTER 01",
-        title: "認識磷：身體裡的微量元素",
-        excerpt: "磷是人體不可或缺的礦物質，參與骨骼形成、能量代謝、細胞膜組成。但對洗腎病友而言，為什麼會變成需要「控制」的對象？",
-        content: `
-            <h3>磷在身體裡做什麼？</h3>
-            <p>磷是一種礦物質，約 85% 存在於骨骼和牙齒，剩餘的 15% 則分布在血液與身體各處。它參與的工作包括：</p>
-            <ul>
-                <li>與鈣一起構成骨骼的主要成分</li>
-                <li>組成細胞膜與 DNA</li>
-                <li>參與能量代謝（ATP）</li>
-                <li>維持血液酸鹼平衡</li>
-            </ul>
-
-            <h3>為什麼洗腎病友要特別注意？</h3>
-            <p>健康的腎臟每天會將多餘的磷排出體外。但腎功能衰退時，磷會滯留在血液中，造成「高磷血症」。即使每週進行三次血液透析，透析本身能移除的磷其實有限，因此飲食控制變得至關重要。</p>
-
-            <div class="callout">
-                <strong>💡 關鍵觀念：</strong>控磷的目標不是「不吃磷」，而是「聰明選擇磷的來源」。完全不吃磷既不可能、也不健康，重點在於避開高磷食物、妥善使用磷結合劑。
-            </div>
-
-            <h3>正常的血磷值是多少？</h3>
-            <p>依據 KDIGO（國際腎臟病組織）建議，洗腎病友的血磷應盡量維持在 <strong>3.5 - 5.5 mg/dL</strong> 的範圍。超過 5.5 mg/dL 稱為高磷血症，需要積極處理。</p>
-        `
-    },
-    {
-        num: "CHAPTER 02",
-        title: "高磷血症的潛在危害",
-        excerpt: "血磷過高常常沒有明顯症狀，但長期下來會對血管、心臟、骨骼造成傷害。了解這些風險，才能更有動力好好控制。",
-        content: `
-            <h3>沉默的危險</h3>
-            <p>高磷血症的可怕之處在於它往往沒有立即、明顯的症狀，病友很難感受到它的存在。但長期下來，它會悄悄在身體留下傷害。</p>
-
-            <h3>主要影響</h3>
-            <ul>
-                <li><strong>血管鈣化：</strong>當血液中磷過高時，會與鈣結合並沉積在血管壁上，讓血管失去彈性，增加心血管疾病風險。</li>
-                <li><strong>副甲狀腺功能亢進：</strong>身體會分泌更多副甲狀腺素試圖排出磷，長期刺激會導致副甲狀腺亢進。</li>
-                <li><strong>骨骼脆弱：</strong>鈣磷代謝失衡會讓骨頭變脆、容易骨折，也就是俗稱的「腎性骨病變」。</li>
-                <li><strong>皮膚搔癢：</strong>許多洗腎病友的頑固皮膚癢，可能與鈣磷沉積有關。</li>
-                <li><strong>死亡率升高：</strong>研究顯示，血磷控制不佳的透析病友，心血管死亡率明顯較高。</li>
-            </ul>
-
-            <div class="callout">
-                <strong>⚠️ 為什麼要在意「看不見的危害」？</strong><br>
-                就像高血壓被稱為沉默殺手一樣，高磷血症的傷害是日積月累的。等到症狀出現時往往已經造成不可逆的損害。越早建立好的控磷習慣，累積的健康收益就越大。
-            </div>
-        `
-    },
-    {
-        num: "CHAPTER 03",
-        title: "認識食物中的磷：天然磷 vs 添加磷",
-        excerpt: "不是所有磷都一樣！天然磷和食品添加的磷，身體吸收率差了一大截。學會分辨，就能吃得更聰明。",
-        content: `
-            <h3>兩種不一樣的磷</h3>
-            <p>食物中的磷可以粗略分成兩類：<strong>天然磷</strong>與<strong>添加磷</strong>，它們在身體的吸收率差異很大。</p>
-
-            <h3>天然磷（吸收率 40-60%）</h3>
-            <p>存在於魚肉蛋奶、豆類、全穀類等天然食物中，與蛋白質結合，吸收率較低。</p>
-            <ul>
-                <li>動物性：肉類、魚類、蛋、乳製品</li>
-                <li>植物性：豆類、堅果、全穀類（吸收率更低，約 40%）</li>
-            </ul>
-
-            <h3>添加磷（吸收率 &gt; 90%）</h3>
-            <p>這是真正的大敵人！食品加工時加入的磷酸鹽為無機磷，幾乎 100% 被吸收，而且不會列在營養標示的「磷」欄位上。</p>
-
-            <div class="callout">
-                <strong>🔍 如何從食品標示揪出添加磷？</strong><br>
-                看「成分」欄位，出現以下字眼都要警覺：
-                <ul style="margin-top: 0.5rem;">
-                    <li>磷酸鹽、磷酸鈉、磷酸鉀、焦磷酸鈉</li>
-                    <li>三聚磷酸鹽、六偏磷酸鈉</li>
-                    <li>任何含「磷」字的添加物</li>
-                </ul>
-            </div>
-
-            <h3>常見的添加磷地雷</h3>
-            <ul>
-                <li>加工肉類：火腿、香腸、培根、熱狗、肉鬆</li>
-                <li>速食：泡麵、即食濃湯、調理包</li>
-                <li>飲料：可樂等深色汽水、奶精、即溶咖啡</li>
-                <li>烘焙：市售麵包、餅乾、蛋糕</li>
-                <li>加工起司、奶精球</li>
-            </ul>
-
-            <div class="callout">
-                <strong>💡 實用原則：</strong>選擇越接近「食物原型」的食材越好。新鮮的肉比加工肉好、現煮的比調理包好、原豆咖啡比三合一好。
-            </div>
-        `
-    },
-    {
-        num: "CHAPTER 04",
-        title: "磷/蛋白比：更聰明的選擇指標",
-        excerpt: "光看磷含量還不夠！磷/蛋白比（P:P ratio）可以幫您在獲取足夠蛋白質的同時，盡量降低磷的攝取。",
-        content: `
-            <h3>為什麼要看比值？</h3>
-            <p>洗腎病友需要比一般人更多的蛋白質（約每公斤體重 1.0-1.2 克）來補充流失。如果只看磷含量，可能會把重要的蛋白質來源也排除掉。</p>
-            <p>這時候，<strong>磷/蛋白比</strong>就是更好的指標：每攝取 1 克蛋白質，會同時吃進多少毫克的磷？</p>
-
-            <h3>理想的磷/蛋白比</h3>
-            <ul>
-                <li><strong>&lt; 10 mg/g：</strong>非常理想</li>
-                <li><strong>10-15 mg/g：</strong>可接受</li>
-                <li><strong>15-20 mg/g：</strong>需注意</li>
-                <li><strong>&gt; 20 mg/g：</strong>較不建議</li>
-            </ul>
-
-            <h3>優選蛋白質（低磷/蛋白比）</h3>
-            <ul>
-                <li><strong>蛋白：</strong>約 1.4 mg/g — 最佳選擇</li>
-                <li><strong>雞胸肉：</strong>約 9.4 mg/g</li>
-                <li><strong>豬里肌：</strong>約 10 mg/g</li>
-                <li><strong>鱸魚：</strong>約 11 mg/g</li>
-            </ul>
-
-            <h3>需要節制的高磷/蛋白比食物</h3>
-            <ul>
-                <li><strong>蛋黃：</strong>約 32 mg/g</li>
-                <li><strong>牛奶：</strong>約 31 mg/g</li>
-                <li><strong>起司：</strong>約 25 mg/g</li>
-                <li><strong>內臟類（如肝臟）：</strong>約 17-20 mg/g</li>
-            </ul>
-
-            <div class="callout">
-                <strong>🥚 一個有趣的例子：</strong><br>
-                蛋白和蛋黃是「雙胞胎兄弟」，但蛋白磷/蛋白比約 1.4，蛋黃卻高達 32！想吃蛋時，多用蛋白、少用蛋黃，就能攝取到優質蛋白而磷更少。
-            </div>
-        `
-    },
-    {
-        num: "CHAPTER 05",
-        title: "烹調方式也會影響磷的吸收",
-        excerpt: "同樣的食材，不同煮法會讓磷含量差很多。掌握「水煮瀝汁」等技巧，就能大幅降低磷的攝取。",
-        content: `
-            <h3>烹調能改變磷的含量？</h3>
-            <p>磷是水溶性的，這意味著我們可以透過浸泡、汆燙、水煮等方式，將食材中的一部分磷「洗」出來。</p>
-
-            <h3>實用技巧</h3>
-
-            <h3>1. 肉類先汆燙再料理</h3>
-            <p>將肉類切塊後，先以滾水汆燙 30 秒到 1 分鐘，瀝掉第一次的水再進行後續料理。研究顯示這個動作可減少約 <strong>15-20%</strong> 的磷含量。</p>
-
-            <h3>2. 蔬菜採用「水煮後棄湯」法</h3>
-            <p>尤其是根莖類、豆類，切小塊後用大量清水煮熟，再將湯汁倒掉。記得不要把煮菜水當湯喝。</p>
-
-            <h3>3. 避開湯汁與滷汁</h3>
-            <p>長時間熬煮的大骨湯、雞湯、火鍋湯的磷含量都很高。吃料比喝湯更明智。滷肉的滷汁也少淋在飯上。</p>
-
-            <h3>4. 選擇清爽的烹調法</h3>
-            <ul>
-                <li>✅ 推薦：清蒸、水煮、清炒、烤（不裹粉）</li>
-                <li>⚠️ 注意：油炸（常裹含磷粉）、燉滷（湯汁濃縮）、醃漬（常含磷酸鹽）</li>
-            </ul>
-
-            <div class="callout">
-                <strong>💡 一個小提醒：</strong><br>
-                降磷烹調的目的是「減少磷」，但也別忘了同時確保足夠的蛋白質攝取和熱量。如果過度汆燙讓肉變得很難吃、吃得太少，反而得不償失。找到平衡才是長久之計。
-            </div>
-        `
-    },
-    {
-        num: "CHAPTER 06",
-        title: "磷結合劑：您的飲食好夥伴",
-        excerpt: "即使飲食已經很注意，大部分洗腎病友還是需要磷結合劑的幫助。了解它的作用與正確用法，才能發揮最大效果。",
-        content: `
-            <h3>為什麼光靠飲食不夠？</h3>
-            <p>要把血磷完全控制在目標值內，單靠飲食往往很困難，因為洗腎病友需要足夠蛋白質，而蛋白質來源幾乎都含磷。因此大部分病友都需要搭配磷結合劑。</p>
-
-            <h3>磷結合劑怎麼運作？</h3>
-            <p>結合劑在腸道裡像「磁鐵」一樣吸附食物中的磷，讓磷無法通過腸壁被身體吸收，最後隨糞便排出。</p>
-
-            <div class="callout">
-                <strong>⏰ 關鍵中的關鍵：時機！</strong><br>
-                結合劑必須「和食物一起進到腸道」才能發揮作用。這就是為什麼要在<strong>用餐中或餐後立刻</strong>服用。餐前太早吃（藥物已離開胃）或餐後太晚吃（磷已吸收）都會大打折扣。
-            </div>
-
-            <h3>常見的結合劑種類</h3>
-            <ul>
-                <li><strong>含鈣類：</strong>碳酸鈣、醋酸鈣 — 價格便宜，但鈣總量需留意</li>
-                <li><strong>非鈣類：</strong>司維拉姆（Sevelamer）— 不含鈣，適合有血管鈣化的病友</li>
-                <li><strong>含鐵類：</strong>檸檬酸鐵（Ferric Citrate）— 可同時補鐵</li>
-                <li><strong>鑭類：</strong>碳酸鑭 — 強效但需嚼碎服用</li>
-            </ul>
-            <p>具體該用哪一種、吃多少，需要醫師根據您的血磷、血鈣、副甲狀腺素等指標來決定。</p>
-
-            <h3>實用提醒</h3>
-            <ul>
-                <li>📏 <strong>吃多少配多少：</strong>大餐多吃、小餐少吃、點心也算一餐</li>
-                <li>⏳ <strong>忘記了怎麼辦：</strong>餐後 15 分鐘內可補服，超過就等下一餐</li>
-                <li>💊 <strong>與鐵劑分開：</strong>間隔至少 2 小時，避免互相影響</li>
-                <li>💩 <strong>便秘處理：</strong>常見副作用，纖維、水分、必要時告知醫師</li>
-                <li>🗣️ <strong>誠實面對醫師：</strong>有漏吃就誠實說，這樣醫師才能正確判斷</li>
-            </ul>
-
-            <div class="callout">
-                <strong>🌱 最後的提醒：</strong><br>
-                控磷是一條長長的路，不是一次衝刺。偶爾一餐失守不代表失敗；建立長期、穩定、可持續的習慣，才是真正的勝利。您已經願意學習這些知識，就是最重要的第一步。
-            </div>
-        `
+      "name": "食物名稱",
+      "risk": "high | medium | low",
+      "phosphorus": 每份磷含量數字（整數mg）,
+      "portion": "份量描述"
     }
-];
+  ],
+  "advice": "針對此餐點給透析患者的具體建議（80字內）",
+  "alternatives": [
+    { "original": "高磷食物", "replace": "替代選項", "reason": "15字內原因" }
+  ],
+  "drugReminder": true或false（含中高磷食物時為true）
+}
 
-/* ============================================================
-   情境題資料
-   ============================================================ */
-const SCENARIOS = [
-    {
-        scene: "今天是家族聚餐，餐桌上擺滿了菜。您需要選出 3 道對血磷影響較小的選項來吃。請選擇您認為的綠燈食物：",
-        options: [
-            {e:"🍚", n:"白飯", p:33, answer: true},
-            {e:"🥬", n:"清炒高麗菜", p:28, answer: true},
-            {e:"🧀", n:"起司蛋糕", p:180, answer: false},
-            {e:"🐟", n:"清蒸鱸魚", p:202, answer: false},
-            {e:"🍖", n:"紅燒獅子頭", p:260, answer: false},
-            {e:"🍎", n:"蘋果一份", p:11, answer: true},
-            {e:"🥜", n:"花生米", p:380, answer: false},
-            {e:"🥛", n:"全脂牛奶", p:96, answer: false}
-        ],
-        correctCount: 3,
-        explanation: "白飯、清炒高麗菜、蘋果都是相對低磷的選擇。牛奶雖然磷含量不到 100mg，但其磷/蛋白比較高（約 31），對洗腎病友來說不是最理想的選擇。"
-    },
-    {
-        scene: "早餐店點餐時間！您想吃得營養又不爆磷，以下哪些是較好的選擇？（可複選，至少選 2 項）",
-        options: [
-            {e:"🥚", n:"蛋白蛋餅（去蛋黃）", p:40, answer: true},
-            {e:"🥓", n:"培根三明治", p:188, answer: false},
-            {e:"🍞", n:"白吐司夾果醬", p:66, answer: true},
-            {e:"🥛", n:"大杯奶茶", p:58, answer: false},
-            {e:"☕", n:"美式咖啡（黑）", p:7, answer: true},
-            {e:"🌭", n:"熱狗堡", p:188, answer: false}
-        ],
-        correctCount: 3,
-        explanation: "蛋白（去蛋黃）、白吐司、黑咖啡都是相對安全的選擇。加工肉品（培根、熱狗）含大量添加磷，奶茶中的奶精也是高磷來源。"
-    },
-    {
-        scene: "這週日朋友請吃火鍋，您該怎麼聰明地享受美食？選出您認為正確的做法：",
-        options: [
-            {e:"🍜", n:"多喝幾碗湯底補充水分", p:0, answer: false},
-            {e:"🥩", n:"肉類先汆燙瀝水再涮", p:0, answer: true},
-            {e:"🥬", n:"多吃蔬菜少喝湯", p:0, answer: true},
-            {e:"🌶", n:"沾濃厚沙茶醬", p:0, answer: false},
-            {e:"💊", n:"餐中按時服用結合劑", p:0, answer: true},
-            {e:"🧆", n:"多吃加工火鍋料（貢丸、魚丸）", p:0, answer: false}
-        ],
-        correctCount: 3,
-        explanation: "火鍋湯底熬煮後磷會濃縮，不宜多喝。加工火鍋料含大量添加磷。正確做法是：吃原型食材、少喝湯、確實服用結合劑。"
-    }
-];
+磷含量參考：
+高磷食物（>200mg/100g）：動物內臟、加工肉品、全穀類、豆類、堅果、乳製品、可樂、啤酒、速食、泡麵、火鍋料、加工食品
+中磷食物（100-200mg）：肉類、魚類、蛋、白米飯、麵條
+低磷食物（<100mg）：川燙蔬菜、白吐司、冬粉、米粉、水果
 
-/* ============================================================
-   資料記錄系統（研究用）
-   ============================================================ */
-const STORAGE_KEY = 'phos_edu_data';
+若有加工食品（如火鍋料、熱狗、培根），應特別警示其含磷添加物。`;
 
-function getData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {
-        user: null,
-        quiz_logs: [],
-        article_logs: [],
-        diary_logs: [],
-        scenario_logs: [],
-        selection_logs: [],
-        reminders: {},
-        session_start: null
+async function analyze() {
+  if (!imgB64 || !apiKey) return;
+  setStage('loading');
+  animSteps();
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const body = {
+      contents: [{
+        parts: [
+          { text: PROMPT },
+          { inline_data: { mime_type: imgMime, data: imgB64 } }
+        ]
+      }],
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 1500,
+        responseMimeType: "application/json"
+      }
     };
-    return JSON.parse(raw);
-}
 
-function saveData(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
 
-/* ============================================================
-   Google Sheets 自動同步設定
-   研究員：請將下方 URL 改成您的 Google Apps Script 網路 App URL
-   若留空字串，則停用雲端同步（資料只存本機）
-   ============================================================ */
-const SHEETS_ENDPOINT = ""; // 例如：https://script.google.com/macros/s/AKfycbx.../exec
+    const data = await res.json();
 
-async function sendToSheets(type, entry) {
-    if (!SHEETS_ENDPOINT) return;
-    try {
-        // 使用 no-cors mode 避免 CORS 問題（資料仍會傳出去）
-        await fetch(SHEETS_ENDPOINT, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ type, entry })
-        });
-    } catch (e) {
-        // 同步失敗時靜默，不影響使用者體驗
-        console.warn('Sheets sync failed:', e);
-        // 標記為待重送
-        const data = getData();
-        data.pending_sync = data.pending_sync || [];
-        data.pending_sync.push({ type, entry });
-        saveData(data);
-    }
-}
-
-function logEvent(type, payload) {
-    const data = getData();
-    const entry = {
-        timestamp: new Date().toISOString(),
-        user_id: data.user?.id || 'anonymous',
-        user_age: data.user?.age || '',
-        user_dialysis_years: data.user?.dialysis_years || '',
-        ...payload
-    };
-    data[type + '_logs'] = data[type + '_logs'] || [];
-    data[type + '_logs'].push(entry);
-    saveData(data);
-    sendToSheets(type, entry); // 雲端同步
-    updateAdminStats();
-}
-
-/* ============================================================
-   登入 & 使用者
-   ============================================================ */
-function doLogin() {
-    const id = document.getElementById('userId').value.trim();
-    const age = document.getElementById('userAge').value;
-    const years = document.getElementById('userDialysisYears').value;
-    const consent = document.getElementById('consentCheck').checked;
-
-    if (!id) { alert('請輸入受試者編號'); return; }
-    if (!age) { alert('請選擇年齡組'); return; }
-    if (!years) { alert('請選擇洗腎年資'); return; }
-    if (!consent) { alert('請勾選同意研究資料使用'); return; }
-
-    const data = getData();
-    data.user = { id, age, dialysis_years: years, login_time: new Date().toISOString() };
-    data.session_start = new Date().toISOString();
-    saveData(data);
-
-    // 記錄一筆「報名/登入」事件給研究員
-    logEvent('enrollment', { action: 'enroll', age, dialysis_years: years });
-
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('displayUserId').innerText = id;
-    initApp();
-}
-
-function initApp() {
-    populateCategories();
-    renderList();
-    renderArticles();
-    renderScenario(0);
-    loadDiary();
-    loadReminders();
-    updateHeroStats();
-    updateAdminStats();
-}
-
-// 檢查是否已登入
-window.addEventListener('DOMContentLoaded', () => {
-    const data = getData();
-    if (data.user && data.user.id) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('displayUserId').innerText = data.user.id;
-        initApp();
-    }
-});
-
-/* ============================================================
-   頁籤切換
-   ============================================================ */
-function switchTab(tab) {
-    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tab + 'View').classList.add('active');
-    event && event.target && event.target.closest('.nav-btn')?.classList.add('active');
-
-    // 確保對的 nav button 被標記
-    const idx = ['home','articles','list','exam','scenario','binder','diary','admin'].indexOf(tab);
-    if (idx >= 0) {
-        document.querySelectorAll('.nav-btn')[idx]?.classList.add('active');
+    if (data.error) {
+      throw new Error(data.error.message || 'API 錯誤');
     }
 
-    logEvent('selection', { action: 'switch_tab', tab });
-    if (tab === 'home') updateHeroStats();
-    if (tab === 'admin') updateAdminStats();
-    if (tab === 'articles') showArticleList();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('AI 未回傳內容');
+
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('無法解析 AI 回應');
+
+    const result = JSON.parse(match[0]);
+    renderResult(result);
+    setStage('result');
+
+  } catch (e) {
+    document.getElementById('err-det').textContent = e.message || '未知錯誤';
+    setStage('error');
+  }
 }
 
-/* ============================================================
-   衛教文章
-   ============================================================ */
-function renderArticles() {
-    const grid = document.getElementById('articleGrid');
-    grid.innerHTML = ARTICLES.map((a, i) => `
-        <div class="article-card" onclick="openArticle(${i})">
-            <div class="article-header">
-                <div class="article-number">${a.num}</div>
-                <div class="article-title">${a.title}</div>
-            </div>
-            <div class="article-body">
-                <div class="article-excerpt">${a.excerpt}</div>
-                <div class="read-more">開始閱讀 →</div>
-            </div>
+function renderResult(r) {
+  const cfg = {
+    high: { ico: '🚨', lbl: 'HIGH RISK · 高磷警示' },
+    medium: { ico: '⚠️', lbl: 'MODERATE · 中度風險' },
+    low: { ico: '✅', lbl: 'SAFE · 低磷安全' }
+  };
+  const c = cfg[r.overallRisk] || cfg.medium;
+  const pct = Math.min(((r.estimatedPhosphorus || 0) / 900) * 100, 100);
+  const riskLabels = { high: '高磷', medium: '中磷', low: '低磷' };
+
+  const foodsHTML = (r.foods || []).map(f => `
+    <div class="food">
+      <div class="fdot ${f.risk}"></div>
+      <div class="fname">
+        <div class="fname-t">${escape(f.name)}</div>
+        <div class="fname-p">${escape(f.portion || '')}</div>
+      </div>
+      <div class="fphos">
+        <div class="fphos-v">${Math.round(f.phosphorus)} mg</div>磷含量
+      </div>
+      <div class="ftag ${f.risk}">${riskLabels[f.risk] || '一般'}</div>
+    </div>
+  `).join('');
+
+  const drugHTML = r.drugReminder ? `
+    <div class="drug">
+      <div class="drug-ico">💊</div>
+      <div class="drug-t">
+        此餐含中高磷食物，請記得<strong>隨第一口飯服用磷結合劑</strong>，切勿飯後補服。
+      </div>
+    </div>
+  ` : '';
+
+  const altsHTML = (r.alternatives || []).length > 0 ? `
+    <div class="section-lbl">低磷替代建議</div>
+    <div class="alts">
+      ${r.alternatives.map(a => `
+        <div class="alt">
+          <div class="alt-h">▸ 建議替換</div>
+          <div class="alt-n">${escape(a.replace)}</div>
+          <div class="alt-d">替代「${escape(a.original)}」<br>${escape(a.reason)}</div>
         </div>
-    `).join('');
-}
+      `).join('')}
+    </div>
+  ` : '';
 
-let articleStartTime = null;
-function openArticle(idx) {
-    const a = ARTICLES[idx];
-    articleStartTime = Date.now();
-    document.getElementById('articlesList').style.display = 'none';
-    const reader = document.getElementById('articleReader');
-    reader.style.display = 'block';
-    reader.innerHTML = `
-        <div class="article-reader">
-            <button class="back-btn" onclick="closeArticle(${idx})">← 返回文章列表</button>
-            <h2>${a.title}</h2>
-            <div class="meta">${a.num} · 預估閱讀時間 3-5 分鐘</div>
-            ${a.content}
-            <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 2px solid var(--border); text-align: center;">
-                <button class="accent-btn" onclick="closeArticle(${idx})">閱讀完成 ✓</button>
-            </div>
+  document.getElementById('stage-result').innerHTML = `
+    <div class="result">
+      <div class="risk-banner ${r.overallRisk}">
+        <div class="risk-ico">${c.ico}</div>
+        <div>
+          <div class="risk-label">${c.lbl}</div>
+          <div class="risk-title">${escape(r.riskTitle || '')}</div>
+          <div class="risk-sub">${escape(r.riskSummary || '')}</div>
         </div>
-    `;
-    logEvent('article', { action: 'open', article_idx: idx, title: a.title });
-}
+      </div>
 
-function closeArticle(idx) {
-    const duration = articleStartTime ? Math.round((Date.now() - articleStartTime) / 1000) : 0;
-    logEvent('article', { action: 'close', article_idx: idx, duration_seconds: duration });
-    showArticleList();
-    updateHeroStats();
-}
-
-function showArticleList() {
-    document.getElementById('articlesList').style.display = 'block';
-    document.getElementById('articleReader').style.display = 'none';
-}
-
-/* ============================================================
-   食物列表
-   ============================================================ */
-let selectedItems = new Set();
-let currentFilter = 'all';
-let currentCategory = '';
-const MAX_DISPLAY = 200; // 避免一次渲染太多
-
-function populateCategories() {
-    const select = document.getElementById('categorySelect');
-    const commonOnly = document.getElementById('commonListToggle')?.checked;
-    const pool = commonOnly ? FOOD_DB.filter(f => f.cm === 1) : FOOD_DB;
-    const cats = {};
-    pool.forEach(f => { cats[f.c] = (cats[f.c] || 0) + 1; });
-    // 自訂排序：新鮮蔬菜、新鮮水果在最前面
-    const priority = ['新鮮蔬菜','新鮮水果'];
-    const sorted = Object.entries(cats).sort((a,b) => {
-        const pa = priority.indexOf(a[0]);
-        const pb = priority.indexOf(b[0]);
-        if (pa >= 0 || pb >= 0) {
-            if (pa < 0) return 1;
-            if (pb < 0) return -1;
-            return pa - pb;
-        }
-        return b[1] - a[1];
-    });
-    select.innerHTML = '<option value="">請選擇類別開始瀏覽…</option>' +
-        '<option value="__ALL__">🔎 全部類別（共 ' + pool.length + ' 筆）</option>' +
-        sorted.map(([c, n]) => `<option value="${c}">${c}（${n} 筆）</option>`).join('');
-}
-
-function setCategoryFilter(cat) {
-    currentCategory = cat;
-    renderList();
-    if (cat) logEvent('selection', { action: 'select_category', category: cat });
-}
-
-function renderList() {
-    const results = document.getElementById('resultsArea');
-    const meta = document.getElementById('resultMeta');
-    const search = document.getElementById('searchInput').value.toLowerCase().trim();
-    results.innerHTML = '';
-
-    // 若無選類別也無搜尋 → 提示
-    if (!currentCategory && !search) {
-        results.innerHTML = `
-            <div style="text-align:center; padding: 4rem 2rem; color: var(--text-soft); background:white; border-radius:18px; border:1px solid var(--border);">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🥗</div>
-                <div style="font-size: 1.1rem; margin-bottom: 0.5rem;">請從上方選單選擇食物類別</div>
-                <div style="font-size: 0.9rem;">或在搜尋框輸入食物名稱</div>
-            </div>`;
-        meta.innerText = '';
-        return;
-    }
-
-    const commonOnly = document.getElementById('commonListToggle')?.checked;
-    const filtered = FOOD_DB.filter(item => {
-        const matchCat = !currentCategory || currentCategory === '__ALL__' || item.c === currentCategory;
-        const matchLevel = currentFilter === 'all' || item.l === currentFilter;
-        const matchSearch = !search || item.n.toLowerCase().includes(search);
-        const matchCommon = !commonOnly || item.cm === 1;
-        return matchCat && matchLevel && matchSearch && matchCommon;
-    });
-
-    if (filtered.length === 0) {
-        results.innerHTML = '<div style="text-align:center; padding: 3rem; color: var(--text-soft);">無符合的食物，請嘗試其他關鍵字或類別</div>';
-        meta.innerText = '';
-        return;
-    }
-
-    // 限制渲染數量
-    const displayed = filtered.slice(0, MAX_DISPLAY);
-    meta.innerText = filtered.length > MAX_DISPLAY
-        ? `顯示前 ${MAX_DISPLAY} 筆，共找到 ${filtered.length} 筆（可用搜尋縮小範圍）`
-        : `共 ${filtered.length} 筆結果`;
-
-    const groups = {};
-    displayed.forEach(item => { if (!groups[item.c]) groups[item.c] = []; groups[item.c].push(item); });
-
-    for (const [cat, items] of Object.entries(groups)) {
-        let html = `<div class="category-group"><div class="cat-title">${cat}<span style="font-size:0.85rem; color:var(--text-soft); font-weight:400; margin-left:8px;">${items.length} 筆</span></div><div class="food-grid">`;
-        html += items.map(item => `
-            <div class="food-card ${item.l} ${selectedItems.has(item.id) ? 'selected' : ''}" onclick="toggleSelect(${item.id}, this)">
-                <button class="info-btn" onclick="showDetail(event, ${item.id})">i</button>
-                <div class="food-name">${item.n}</div>
-                <div class="food-phos">${item.p} mg</div>
-            </div>`).join('');
-        html += `</div></div>`;
-        results.innerHTML += html;
-    }
-    updateCalculator();
-}
-
-function setFilter(type) {
-    currentFilter = type;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
-    renderList();
-    logEvent('selection', { action: 'filter_food', filter: type });
-}
-
-document.getElementById('searchInput').addEventListener('input', () => {
-    clearTimeout(window._searchTimer);
-    window._searchTimer = setTimeout(renderList, 200);
-});
-
-function toggleSelect(id, el) {
-    if (selectedItems.has(id)) { selectedItems.delete(id); el.classList.remove('selected'); }
-    else {
-        selectedItems.add(id); el.classList.add('selected');
-        logEvent('selection', { action: 'select_food', food_id: id, food_name: FOOD_DB[id].n });
-    }
-    updateCalculator();
-}
-
-function updateCalculator() {
-    const bar = document.getElementById('calcBar');
-    if (selectedItems.size === 0) { bar.classList.remove('active'); return; }
-    bar.classList.add('active');
-    let tP=0, tPr=0;
-    selectedItems.forEach(id => { const i = FOOD_DB.find(d => d.id === id); if(i){ tP+=i.p; tPr+=i.pr; }});
-    document.getElementById('totalCount').innerText = selectedItems.size;
-    document.getElementById('totalPhos').innerText = Math.round(tP);
-    document.getElementById('totalProt').innerText = tPr.toFixed(1);
-    const r = tPr > 0 ? (tP/tPr).toFixed(1) : '--';
-    const rEl = document.getElementById('totalRatio');
-    rEl.innerText = r;
-    rEl.className = (r !== '--' && parseFloat(r) > 20) ? 'calc-value danger' : 'calc-value';
-}
-
-function resetSelection() { selectedItems.clear(); renderList(); }
-
-function showDetail(e, id) {
-    e.stopPropagation();
-    const item = FOOD_DB.find(i => i.id === id);
-    document.getElementById('mName').innerText = item.n;
-    document.getElementById('mPhos').innerText = item.p + " mg";
-    document.getElementById('mProt').innerText = item.pr + " g";
-    document.getElementById('mKcal').innerText = item.k + " kcal";
-    document.getElementById('mRatio').innerText = item.r;
-    document.getElementById('mCat').innerText = item.c;
-    document.getElementById('modalOverlay').classList.add('active');
-    logEvent('selection', { action: 'view_detail', food_id: id, food_name: item.n });
-}
-
-function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
-
-/* ============================================================
-   測驗系統
-   ============================================================ */
-let examQuestions = [];
-let currentQIndex = 0;
-let examScore = 0;
-let questionStartTime = 0;
-let examSessionId = null;
-
-function startExam() {
-    const commonOnly = document.getElementById('commonOnlyToggle').checked;
-    const pool = commonOnly ? FOOD_DB.filter(f => f.cm === 1) : FOOD_DB;
-
-    if (pool.length < 10) {
-        alert('食物庫資料不足');
-        return;
-    }
-
-    examQuestions = [...pool].sort(() => 0.5 - Math.random()).slice(0, 10);
-    currentQIndex = 0;
-    examScore = 0;
-    examSessionId = 'exam_' + Date.now();
-
-    document.getElementById('examStartScreen').style.display = 'none';
-    document.getElementById('examResultScreen').style.display = 'none';
-    document.getElementById('examQuestionScreen').style.display = 'block';
-
-    logEvent('quiz', { action: 'start', session_id: examSessionId, common_only: commonOnly, pool_size: pool.length });
-    showQuestion();
-}
-
-function showQuestion() {
-    const item = examQuestions[currentQIndex];
-    questionStartTime = Date.now();
-    document.getElementById('qCurrent').innerText = currentQIndex + 1;
-    document.getElementById('currentScore').innerText = examScore;
-    document.getElementById('qCategory').innerText = item.c;
-    document.getElementById('qName').innerText = item.n;
-    document.getElementById('progressFill').style.width = ((currentQIndex + 1) * 10) + '%';
-
-    document.getElementById('qFeedback').style.display = 'none';
-    document.getElementById('nextQBtn').style.display = 'none';
-    document.querySelectorAll('.quiz-btn').forEach(b => b.disabled = false);
-}
-
-function checkAnswer(userChoice) {
-    const item = examQuestions[currentQIndex];
-    const responseTime = Date.now() - questionStartTime;
-    const isCorrect = userChoice === item.l;
-    if (isCorrect) examScore += 10;
-
-    const feedback = document.getElementById('qFeedback');
-    document.querySelectorAll('.quiz-btn').forEach(b => b.disabled = true);
-    document.getElementById('nextQBtn').style.display = 'inline-block';
-
-    const correctTextMap = { low: "🟢 綠燈（低磷）", mid: "🟡 黃燈（中磷）", high: "🔴 紅燈（高磷）" };
-    feedback.style.display = 'block';
-    feedback.className = "feedback-area " + (isCorrect ? "correct" : "wrong");
-    feedback.innerHTML = `
-        <strong>${isCorrect ? "✅ 答對了！" : "❌ 答錯了"}</strong>
-        ${item.n} 是 ${correctTextMap[item.l]}<br>
-        磷含量：${item.p} mg / 蛋白質：${item.pr} g / 磷蛋白比：${item.r}
-    `;
-
-    logEvent('quiz', {
-        action: 'answer',
-        session_id: examSessionId,
-        question_num: currentQIndex + 1,
-        food_name: item.n,
-        food_category: item.c,
-        correct_answer: item.l,
-        user_answer: userChoice,
-        is_correct: isCorrect,
-        response_time_ms: responseTime,
-        phosphate_mg: item.p
-    });
-}
-
-function nextQuestion() {
-    currentQIndex++;
-    if (currentQIndex < 10) {
-        showQuestion();
-    } else {
-        showResult();
-    }
-}
-
-function showResult() {
-    document.getElementById('examQuestionScreen').style.display = 'none';
-    document.getElementById('examResultScreen').style.display = 'block';
-    const scoreEl = document.getElementById('finalScore');
-    const commentEl = document.getElementById('scoreComment');
-    const emojiEl = document.getElementById('resultEmoji');
-
-    let tempScore = 0;
-    const timer = setInterval(() => {
-        tempScore += 2;
-        scoreEl.innerText = tempScore;
-        if (tempScore >= examScore) { scoreEl.innerText = examScore; clearInterval(timer); }
-    }, 25);
-
-    if (examScore === 100) { commentEl.innerText = "滿分！您是控磷大師！🏆"; emojiEl.innerText = "🏆"; }
-    else if (examScore >= 80) { commentEl.innerText = "表現優秀！觀念非常正確。"; emojiEl.innerText = "✨"; }
-    else if (examScore >= 60) { commentEl.innerText = "不錯喔！再多練習幾次會更熟練。"; emojiEl.innerText = "💪"; }
-    else { commentEl.innerText = "建議先閱讀衛教知識文章再回來挑戰。"; emojiEl.innerText = "🌱"; }
-
-    logEvent('quiz', { action: 'complete', session_id: examSessionId, final_score: examScore });
-    updateHeroStats();
-}
-
-/* ============================================================
-   情境題
-   ============================================================ */
-let currentScenario = 0;
-let scenarioSelections = new Set();
-
-function renderScenario(idx) {
-    currentScenario = idx;
-    scenarioSelections.clear();
-    const s = SCENARIOS[idx];
-    const card = document.getElementById('scenarioCard');
-    card.innerHTML = `
-        <div style="color: var(--text-soft); font-size: 0.9rem; margin-bottom: 0.5rem;">情境 ${idx + 1} / ${SCENARIOS.length}</div>
-        <div class="scenario-scene">${s.scene}</div>
-        <div class="plate-visual" id="plateVisual">
-            ${s.options.map((o, i) => `
-                <div class="plate-item" data-idx="${i}" onclick="togglePlate(${i})">
-                    <span class="plate-emoji">${o.e}</span>
-                    <div class="plate-name">${o.n}</div>
-                    ${o.p > 0 ? `<div class="plate-phos">${o.p} mg</div>` : ''}
-                </div>
-            `).join('')}
+      <div class="meter">
+        <div class="meter-head">
+          <span style="color:var(--muted)">估算磷攝取量（本餐）</span>
+          <span style="font-weight:500;color:${r.overallRisk==='high'?'var(--danger)':r.overallRisk==='low'?'var(--safe)':'var(--gold)'}">${Math.round(r.estimatedPhosphorus || 0)} mg</span>
         </div>
-        <div style="text-align: center; margin-top: 1.5rem;">
-            <button class="accent-btn" onclick="submitScenario()">確認選擇</button>
+        <div class="meter-bar">
+          <div class="meter-fill ${r.overallRisk}" id="mf" style="width:0%"></div>
         </div>
-        <div id="scenarioFeedback" style="margin-top: 1.5rem;"></div>
-    `;
-    logEvent('scenario', { action: 'open', scenario_idx: idx });
+        <div class="meter-marks">
+          <span>0 mg</span><span>每日目標上限 900 mg</span>
+        </div>
+      </div>
+
+      ${foodsHTML ? `<div><div class="section-lbl">辨識食物清單</div>${foodsHTML}</div>` : ''}
+
+      ${drugHTML}
+
+      <div class="advice">
+        <div class="advice-h">▸ AI 飲食建議</div>
+        <div class="advice-t">${escape(r.advice || '')}</div>
+      </div>
+
+      ${altsHTML}
+
+      <button class="btn-ghost" style="width:100%;padding:14px;margin-top:4px;" onclick="reset()">📷 重新分析另一道餐點</button>
+    </div>
+  `;
+
+  setTimeout(() => {
+    const mf = document.getElementById('mf');
+    if (mf) mf.style.width = pct + '%';
+  }, 100);
 }
 
-function togglePlate(idx) {
-    const el = document.querySelector(`[data-idx="${idx}"]`);
-    if (scenarioSelections.has(idx)) { scenarioSelections.delete(idx); el.classList.remove('selected'); }
-    else { scenarioSelections.add(idx); el.classList.add('selected'); }
+function escape(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function submitScenario() {
-    const s = SCENARIOS[currentScenario];
-    const correctIdx = s.options.map((o, i) => o.answer ? i : -1).filter(i => i !== -1);
-    const userIdx = Array.from(scenarioSelections);
-
-    let correctHits = userIdx.filter(i => s.options[i].answer).length;
-    let wrongHits = userIdx.filter(i => !s.options[i].answer).length;
-    let missed = correctIdx.filter(i => !scenarioSelections.has(i)).length;
-
-    const isFullyCorrect = correctHits === correctIdx.length && wrongHits === 0;
-
-    const feedback = document.getElementById('scenarioFeedback');
-    feedback.className = "feedback-area " + (isFullyCorrect ? "correct" : "wrong");
-    feedback.style.display = 'block';
-    feedback.innerHTML = `
-        <strong>${isFullyCorrect ? "✅ 完全正確！" : "📚 部分正確"}</strong>
-        答對 ${correctHits} 項、選錯 ${wrongHits} 項、漏掉 ${missed} 項。<br><br>
-        <strong>解析：</strong>${s.explanation}<br><br>
-        <strong>正確答案：</strong>${correctIdx.map(i => s.options[i].n).join('、')}
-    `;
-
-    // 顯示正確答案
-    correctIdx.forEach(i => {
-        const el = document.querySelector(`[data-idx="${i}"]`);
-        if (el) el.style.borderColor = 'var(--safe)';
-    });
-
-    const navBtns = document.createElement('div');
-    navBtns.style.cssText = 'text-align:center; margin-top: 1.5rem;';
-    if (currentScenario < SCENARIOS.length - 1) {
-        navBtns.innerHTML = `<button class="accent-btn" onclick="renderScenario(${currentScenario + 1})">下一情境 →</button>`;
-    } else {
-        navBtns.innerHTML = `<button class="accent-btn" onclick="renderScenario(0)">重新開始</button>`;
-    }
-    feedback.appendChild(navBtns);
-
-    logEvent('scenario', {
-        action: 'submit',
-        scenario_idx: currentScenario,
-        user_selections: userIdx,
-        correct_selections: correctIdx,
-        correct_hits: correctHits,
-        wrong_hits: wrongHits,
-        fully_correct: isFullyCorrect
-    });
-}
-
-/* ============================================================
-   結合劑提醒
-   ============================================================ */
-function saveReminder() {
-    const data = getData();
-    data.reminders = {
-        breakfast: { enabled: document.getElementById('rem1').checked, time: document.getElementById('remTime1').value },
-        lunch: { enabled: document.getElementById('rem2').checked, time: document.getElementById('remTime2').value },
-        dinner: { enabled: document.getElementById('rem3').checked, time: document.getElementById('remTime3').value },
-        snack: { enabled: document.getElementById('rem4').checked, time: document.getElementById('remTime4').value }
-    };
-    saveData(data);
-    logEvent('selection', { action: 'update_reminders', reminders: data.reminders });
-}
-
-function loadReminders() {
-    const data = getData();
-    const r = data.reminders || {};
-    if (r.breakfast) { document.getElementById('rem1').checked = r.breakfast.enabled; document.getElementById('remTime1').value = r.breakfast.time; }
-    if (r.lunch) { document.getElementById('rem2').checked = r.lunch.enabled; document.getElementById('remTime2').value = r.lunch.time; }
-    if (r.dinner) { document.getElementById('rem3').checked = r.dinner.enabled; document.getElementById('remTime3').value = r.dinner.time; }
-    if (r.snack) { document.getElementById('rem4').checked = r.snack.enabled; document.getElementById('remTime4').value = r.snack.time; }
-}
-
-/* ============================================================
-   飲食日記
-   ============================================================ */
-function saveDiary() {
-    const meal = document.getElementById('diaryMeal').value;
-    const food = document.getElementById('diaryFood').value.trim();
-    const binder = document.getElementById('diaryBinder').value;
-    const note = document.getElementById('diaryNote').value.trim();
-
-    if (!food) { alert('請填寫吃了什麼'); return; }
-
-    logEvent('diary', { meal, food, binder, note });
-
-    document.getElementById('diaryFood').value = '';
-    document.getElementById('diaryNote').value = '';
-    loadDiary();
-    updateHeroStats();
-}
-
-function loadDiary() {
-    const data = getData();
-    const entries = (data.diary_logs || []).slice().reverse();
-    const container = document.getElementById('diaryEntries');
-    if (entries.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-soft); text-align: center; padding: 2rem;">尚無紀錄，開始您的第一筆日記吧！</p>';
-        return;
-    }
-    container.innerHTML = entries.map(e => {
-        const date = new Date(e.timestamp);
-        const dateStr = date.toLocaleString('zh-TW', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
-        const binderMap = {
-            yes: { t: '✅ 有隨餐服用', c: '' },
-            late: { t: '⚠️ 忘記隨餐', c: 'diary-entry-nobinder' },
-            no: { t: '❌ 忘記服用', c: 'diary-entry-nobinder' }
-        };
-        const b = binderMap[e.binder] || binderMap.yes;
-        return `
-            <div class="diary-entry">
-                <div class="diary-entry-header">
-                    <span class="diary-entry-food">${e.meal}</span>
-                    <span class="diary-entry-date">${dateStr}</span>
-                </div>
-                <div class="diary-entry-detail">${e.food}</div>
-                ${e.note ? `<div class="diary-entry-detail" style="font-style: italic; margin-top: 4px;">💭 ${e.note}</div>` : ''}
-                <div class="diary-entry-binder ${b.c}">${b.t}</div>
-            </div>
-        `;
-    }).join('');
-}
-
-/* ============================================================
-   首頁統計
-   ============================================================ */
-function updateHeroStats() {
-    const data = getData();
-    const articleLogs = data.article_logs || [];
-    const quizLogs = data.quiz_logs || [];
-    const diaryLogs = data.diary_logs || [];
-
-    const uniqueArticles = new Set(articleLogs.filter(l => l.action === 'open').map(l => l.article_idx)).size;
-    const completedQuizzes = quizLogs.filter(l => l.action === 'complete').length;
-    const diaryCount = diaryLogs.length;
-
-    const answerLogs = quizLogs.filter(l => l.action === 'answer');
-    const accuracy = answerLogs.length > 0
-        ? Math.round(answerLogs.filter(l => l.is_correct).length / answerLogs.length * 100) + '%'
-        : '--';
-
-    document.getElementById('heroLearned').innerText = uniqueArticles;
-    document.getElementById('heroQuizzes').innerText = completedQuizzes;
-    document.getElementById('heroAccuracy').innerText = accuracy;
-    document.getElementById('heroDiary').innerText = diaryCount;
-}
-
-/* ============================================================
-   研究後台
-   ============================================================ */
-function updateAdminStats() {
-    const data = getData();
-    const statsEl = document.getElementById('adminStats');
-    if (!statsEl) return;
-
-    // 雲端同步狀態
-    const syncEl = document.getElementById('syncStatus');
-    if (syncEl) {
-        const pending = (data.pending_sync || []).length;
-        if (!SHEETS_ENDPOINT) {
-            syncEl.innerHTML = `<div style="background: var(--bg-warm); padding: 1rem; border-radius: 10px; color: var(--text-soft);">
-                ⚠️ 雲端同步未啟用 — 資料僅儲存於本機，請定期匯出 CSV
-            </div>`;
-        } else if (pending > 0) {
-            syncEl.innerHTML = `<div style="background: var(--warn-bg); padding: 1rem; border-radius: 10px;">
-                ⏳ 有 ${pending} 筆資料尚未同步成功
-                <button onclick="retrySync()" style="margin-left: 10px; padding: 6px 14px; border-radius: 8px; border: none; background: var(--primary); color: white; cursor: pointer;">重試同步</button>
-            </div>`;
-        } else {
-            syncEl.innerHTML = `<div style="background: var(--safe-bg); padding: 1rem; border-radius: 10px; color: var(--safe);">
-                ✅ 雲端同步已啟用 — 您的學習資料會自動傳送到研究資料庫
-            </div>`;
-        }
-    }
-
-    const quizLogs = data.quiz_logs || [];
-    const articleLogs = data.article_logs || [];
-    const scenarioLogs = data.scenario_logs || [];
-    const diaryLogs = data.diary_logs || [];
-    const selectionLogs = data.selection_logs || [];
-
-    const answerLogs = quizLogs.filter(l => l.action === 'answer');
-    const correctCount = answerLogs.filter(l => l.is_correct).length;
-    const avgTime = answerLogs.length > 0
-        ? Math.round(answerLogs.reduce((s, l) => s + (l.response_time_ms || 0), 0) / answerLogs.length / 1000)
-        : 0;
-
-    statsEl.innerHTML = `
-        <div class="stat-box"><div class="stat-value">${answerLogs.length}</div><div class="stat-label">總答題數</div></div>
-        <div class="stat-box"><div class="stat-value">${correctCount}</div><div class="stat-label">答對題數</div></div>
-        <div class="stat-box"><div class="stat-value">${avgTime}s</div><div class="stat-label">平均答題時間</div></div>
-        <div class="stat-box"><div class="stat-value">${articleLogs.filter(l=>l.action==='open').length}</div><div class="stat-label">文章開啟次數</div></div>
-        <div class="stat-box"><div class="stat-value">${scenarioLogs.filter(l=>l.action==='submit').length}</div><div class="stat-label">情境題完成</div></div>
-        <div class="stat-box"><div class="stat-value">${diaryLogs.length}</div><div class="stat-label">飲食日記筆數</div></div>
-        <div class="stat-box"><div class="stat-value">${selectionLogs.length}</div><div class="stat-label">互動點擊數</div></div>
-    `;
-
-    const recent = [
-        ...quizLogs.map(l => ({...l, type: '測驗'})),
-        ...articleLogs.map(l => ({...l, type: '文章'})),
-        ...scenarioLogs.map(l => ({...l, type: '情境題'})),
-        ...diaryLogs.map(l => ({...l, type: '日記'}))
-    ].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 20);
-
-    const logEl = document.getElementById('recentLogs');
-    if (logEl) {
-        logEl.innerHTML = recent.length === 0
-            ? '<p style="color: var(--text-soft); text-align: center; padding: 1rem;">尚無活動紀錄</p>'
-            : recent.map(l => `
-                <div style="padding: 8px 12px; border-bottom: 1px solid var(--border);">
-                    <span style="display: inline-block; background: var(--bg-warm); padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-right: 8px;">${l.type}</span>
-                    <span style="color: var(--text-soft); font-size: 0.8rem;">${new Date(l.timestamp).toLocaleString('zh-TW')}</span>
-                    <span style="margin-left: 8px;">${l.action || ''} ${l.food_name || l.title || l.meal || ''}</span>
-                </div>
-            `).join('');
-    }
-}
-
-function exportData(type) {
-    const data = getData();
-    let csv, filename;
-
-    if (type === 'all') {
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        downloadBlob(blob, `phos_edu_${data.user?.id || 'anon'}_${Date.now()}.json`);
-        return;
-    }
-
-    if (type === 'quiz') {
-        const logs = data.quiz_logs || [];
-        csv = "timestamp,user_id,action,session_id,question_num,food_name,food_category,correct_answer,user_answer,is_correct,response_time_ms,phosphate_mg,final_score\n";
-        csv += logs.map(l => [
-            l.timestamp, l.user_id, l.action || '', l.session_id || '', l.question_num || '',
-            l.food_name || '', l.food_category || '', l.correct_answer || '', l.user_answer || '',
-            l.is_correct ?? '', l.response_time_ms || '', l.phosphate_mg || '', l.final_score || ''
-        ].join(',')).join('\n');
-        filename = 'quiz_data.csv';
-    } else if (type === 'article') {
-        const logs = data.article_logs || [];
-        csv = "timestamp,user_id,action,article_idx,title,duration_seconds\n";
-        csv += logs.map(l => [l.timestamp, l.user_id, l.action, l.article_idx, l.title || '', l.duration_seconds || ''].join(',')).join('\n');
-        filename = 'article_data.csv';
-    } else if (type === 'diary') {
-        const logs = data.diary_logs || [];
-        csv = "timestamp,user_id,meal,food,binder,note\n";
-        csv += logs.map(l => [l.timestamp, l.user_id, l.meal, `"${(l.food||'').replace(/"/g,'""')}"`, l.binder, `"${(l.note||'').replace(/"/g,'""')}"`].join(',')).join('\n');
-        filename = 'diary_data.csv';
-    } else if (type === 'scenario') {
-        const logs = data.scenario_logs || [];
-        csv = "timestamp,user_id,action,scenario_idx,user_selections,correct_hits,wrong_hits,fully_correct\n";
-        csv += logs.map(l => [
-            l.timestamp, l.user_id, l.action, l.scenario_idx,
-            `"${JSON.stringify(l.user_selections || [])}"`,
-            l.correct_hits || '', l.wrong_hits || '', l.fully_correct || ''
-        ].join(',')).join('\n');
-        filename = 'scenario_data.csv';
-    }
-
-    const bom = '\uFEFF'; // UTF-8 BOM for Excel
-    const blob = new Blob([bom + csv], {type: 'text/csv;charset=utf-8'});
-    downloadBlob(blob, filename);
-}
-
-function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-function clearData() {
-    if (!confirm('確定要清除本機所有資料嗎？此動作無法復原。建議先匯出資料。')) return;
-    if (!confirm('真的要清除嗎？所有學習紀錄將消失。')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-}
-
-async function retrySync() {
-    const data = getData();
-    const pending = data.pending_sync || [];
-    if (pending.length === 0) return;
-
-    let success = 0;
-    const stillPending = [];
-    for (const item of pending) {
-        try {
-            await fetch(SHEETS_ENDPOINT, {
-                method: 'POST', mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(item)
-            });
-            success++;
-        } catch (e) {
-            stillPending.push(item);
-        }
-    }
-    data.pending_sync = stillPending;
-    saveData(data);
-    alert(`重試完成：成功 ${success} 筆，仍待同步 ${stillPending.length} 筆`);
-    updateAdminStats();
-}
+// Init
+checkKey();
 </script>
 </body>
 </html>
